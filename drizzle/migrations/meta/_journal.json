@@ -43,6 +43,13 @@
       "when": 1789658939873,
       "tag": "0005_create_checklists",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789660188287,
+      "tag": "0006_create_updates",
+      "breakpoints": true
     }
   ]
 }

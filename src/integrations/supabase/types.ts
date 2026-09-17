@@ -445,6 +445,105 @@ export type Database = {
           },
         ]
       }
+      update_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          update_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          update_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          update_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "update_comments_update_id_fkey"
+            columns: ["update_id"]
+            isOneToOne: false
+            referencedRelation: "updates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      update_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          update_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          update_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          update_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "update_reactions_update_id_fkey"
+            columns: ["update_id"]
+            isOneToOne: false
+            referencedRelation: "updates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      updates: {
+        Row: {
+          author_id: string
+          body: string
+          circle_id: string
+          created_at: string
+          edited_at: string | null
+          id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          circle_id: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          circle_id?: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "updates_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "care_circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -471,6 +570,7 @@ export type Database = {
       is_circle_member: { Args: { _circle_id: string }; Returns: boolean }
       is_circle_organiser: { Args: { _circle_id: string }; Returns: boolean }
       shares_circle_with: { Args: { _user_id: string }; Returns: boolean }
+      update_circle_id: { Args: { _update_id: string }; Returns: string }
     }
     Enums: {
       circle_role: "organiser" | "member" | "viewer"
