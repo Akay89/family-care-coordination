@@ -317,7 +317,7 @@ function ProfilePage() {
                   </p>
                 </div>
                 <Switch
-                  className="h-7 w-12 shrink-0 [&>span]:size-6 [&>span]:data-[state=checked]:translate-x-5"
+                  
                   id={item.key}
                   checked={Boolean(prefs.data?.[item.key])}
                   onCheckedChange={(value) => void togglePref(item.key, value)}
