@@ -26,16 +26,34 @@ const shortcuts = [
     description: "Step-by-step help with benefits and paperwork.",
     icon: ListChecks,
   },
+  {
+    to: "/app/members",
+    label: "People",
+    description: "See who's helping and invite more family or friends.",
+    icon: Users,
+  },
 ] as const;
 
 function AppHome() {
+  const { activeCircle } = useCircles();
+
   return (
     <section>
-      <h1 className="text-3xl font-semibold sm:text-4xl">Home</h1>
+      <h1 className="text-3xl font-semibold sm:text-4xl">
+        {activeCircle?.name ?? "Home"}
+      </h1>
       <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-        Welcome to your family space. This is where everything you&apos;re
-        coordinating will come together.
+        {activeCircle
+          ? `Everything the family is coordinating for ${activeCircle.cared_for_name || "your relative"}.`
+          : "Welcome to your family space."}
       </p>
+
+      {activeCircle?.cared_for_notes && (
+        <p className="mt-4 max-w-2xl rounded-2xl border border-border bg-card p-4 text-base">
+          {activeCircle.cared_for_notes}
+        </p>
+      )}
+
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shortcuts.map((item) => (
