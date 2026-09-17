@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { TaskFormSheet } from "@/components/task-form";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import { useCircles } from "@/hooks/use-circles";
 import { useCircleMemberNames } from "@/hooks/use-circle-events";
 import { useCircleTasks } from "@/hooks/use-circle-tasks";
@@ -277,8 +278,10 @@ function TasksPage() {
         ))}
       </div>
 
-      {tasks.isLoading ? (
-        <p className="mt-8 text-lg text-muted-foreground">Loading tasks…</p>
+      {tasks.isError ? (
+        <LoadError what="your tasks" onRetry={() => void refresh()} />
+      ) : tasks.isLoading ? (
+        <CardListSkeleton rows={4} />
       ) : (
         <div className="mt-8 max-w-3xl space-y-8">
           {overdue.length > 0 && (

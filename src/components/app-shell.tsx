@@ -29,6 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { InstallPrompt } from "@/components/install-prompt";
 import { useCircles, roleLabels } from "@/hooks/use-circles";
 import { useIsAdmin } from "@/hooks/use-checklists";
 import { cn } from "@/lib/utils";
@@ -64,8 +65,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
         <div className="container-page flex flex-wrap items-center justify-between gap-3 py-3">
-          <div className="flex items-center gap-3">
-            <Link to="/app" className="flex items-center gap-2.5">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
+            <Link to="/app" className="flex min-h-11 items-center gap-2.5">
               <span
                 className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground"
                 aria-hidden="true"
@@ -80,7 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {activeCircle && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="max-w-[15rem] gap-2">
+                  <Button variant="outline" className="min-w-0 max-w-[15rem] gap-2">
                     <span className="truncate">{activeCircle.name}</span>
                     <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
                   </Button>
@@ -172,7 +173,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   to={item.to}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-colors",
+                    "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-colors",
                     isActive(item.to)
                       ? "bg-teal-soft text-primary"
                       : "text-foreground hover:bg-muted",
@@ -189,6 +190,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="min-w-0 flex-1 pb-24 md:pb-0">{children}</main>
       </div>
 
+      <InstallPrompt />
+
       <nav
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card md:hidden"
@@ -199,7 +202,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 to={item.to}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-1 py-2 text-xs font-medium",
+                  "flex min-h-14 flex-col items-center justify-center gap-1 px-1 py-2 text-xs font-medium",
                   isActive(item.to) ? "text-primary" : "text-muted-foreground",
                 )}
               >

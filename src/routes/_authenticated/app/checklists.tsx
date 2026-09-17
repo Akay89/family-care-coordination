@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
@@ -226,8 +227,14 @@ function ChecklistsPage() {
         <h2 className="font-display text-2xl font-semibold">
           Your checklists
         </h2>
-        {checklists.isLoading ? (
-          <p className="text-muted-foreground">Loading…</p>
+        {checklists.isError ? (
+          <LoadError
+            what="your checklists"
+            onRetry={() => void checklists.refetch()}
+            className="rounded-2xl border border-border p-4"
+          />
+        ) : checklists.isLoading ? (
+          <CardListSkeleton rows={2} className="space-y-3" />
         ) : started.length === 0 ? (
           <p className="text-muted-foreground">
             Nothing started yet. Pick one from the list below.

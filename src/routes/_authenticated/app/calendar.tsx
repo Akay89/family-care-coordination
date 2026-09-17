@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import { EventFormSheet } from "@/components/event-form";
 import {
   useCircleEvents,
@@ -171,8 +172,10 @@ function CalendarPage() {
         </div>
       </div>
 
-      {events.isLoading ? (
-        <p className="mt-8 text-base text-muted-foreground">Loading…</p>
+      {events.isError ? (
+        <LoadError what="the calendar" onRetry={() => void events.refetch()} />
+      ) : events.isLoading ? (
+        <CardListSkeleton rows={4} />
       ) : view === "agenda" ? (
         upcomingGroups.length === 0 ? (
           <EmptyState canEdit={canEdit} onAdd={openNew} filter={filter} />

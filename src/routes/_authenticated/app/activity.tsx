@@ -4,6 +4,7 @@ import { History } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCircles } from "@/hooks/use-circles";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import {
   describeActivity,
   formatActivityTime,
@@ -96,8 +97,14 @@ function ActivityPage() {
           Recent
         </h2>
 
-        {activity.isLoading ? (
-          <p className="mt-4 text-base text-muted-foreground">Loading…</p>
+        {activity.isError ? (
+          <LoadError
+            what="the activity list"
+            onRetry={() => void activity.refetch()}
+            className="mt-4 rounded-2xl border border-border p-4"
+          />
+        ) : activity.isLoading ? (
+          <CardListSkeleton rows={4} className="mt-4 space-y-3" />
         ) : (activity.data ?? []).length === 0 ? (
           <p className="mt-4 text-base text-muted-foreground">
             Nothing recorded yet.
