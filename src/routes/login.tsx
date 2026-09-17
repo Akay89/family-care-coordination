@@ -13,9 +13,12 @@ function safePath(value: unknown) {
 }
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: safePath(search['redirect']),
-  }),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { redirect?: string } => {
+    const target = safePath(search['redirect']);
+    return target ? { redirect: target } : {};
+  },
   head: () => ({
     meta: [
       { title: "Sign in to CareCircle" },
