@@ -74,7 +74,7 @@ function AdminPage() {
 
   async function updateTemplate(
     id: string,
-    values: Record<string, string | boolean>,
+    values: Partial<{ title: string; category: string; description: string; is_active: boolean }>,
   ) {
     const { error } = await supabase
       .from("checklist_templates")
@@ -117,7 +117,7 @@ function AdminPage() {
 
   async function updateItem(
     id: string,
-    values: Record<string, string | number | null>,
+    values: Partial<{ title: string; help_text: string | null; link_url: string | null; position: number }>,
   ) {
     const { error } = await supabase
       .from("checklist_template_items")
