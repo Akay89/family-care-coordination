@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CalendarDays, CheckSquare, ListChecks } from "lucide-react";
+import { CalendarDays, CheckSquare, ListChecks, Users } from "lucide-react";
+
+import { useCircles } from "@/hooks/use-circles";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: AppHome,
