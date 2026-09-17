@@ -41,6 +41,14 @@
   --color-teal-soft: var(--teal-soft);
   --color-warm-soft: var(--warm-soft);
   --color-surface: var(--surface);
+  --color-event-appointment: var(--event-appointment);
+  --color-event-appointment-foreground: var(--event-appointment-foreground);
+  --color-event-visit: var(--event-visit);
+  --color-event-visit-foreground: var(--event-visit-foreground);
+  --color-event-collection: var(--event-collection);
+  --color-event-collection-foreground: var(--event-collection-foreground);
+  --color-event-other: var(--event-other);
+  --color-event-other-foreground: var(--event-other-foreground);
 
   --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", ui-serif, Georgia, serif;
@@ -83,6 +91,16 @@
   --border: oklch(0.88 0.02 70);
   --input: oklch(0.88 0.02 70);
   --ring: oklch(0.48 0.075 197);
+
+  /* Event kinds — warm, muted, all AA against their foreground */
+  --event-appointment: oklch(0.91 0.04 195);
+  --event-appointment-foreground: oklch(0.33 0.06 210);
+  --event-visit: oklch(0.93 0.055 105);
+  --event-visit-foreground: oklch(0.34 0.07 120);
+  --event-collection: oklch(0.93 0.055 60);
+  --event-collection-foreground: oklch(0.36 0.09 45);
+  --event-other: oklch(0.92 0.015 78);
+  --event-other-foreground: oklch(0.34 0.025 60);
 }
 
 .dark {
@@ -115,6 +133,15 @@
   --border: oklch(1 0 0 / 14%);
   --input: oklch(1 0 0 / 18%);
   --ring: oklch(0.75 0.09 190);
+
+  --event-appointment: oklch(0.33 0.05 205);
+  --event-appointment-foreground: oklch(0.93 0.03 195);
+  --event-visit: oklch(0.33 0.05 125);
+  --event-visit-foreground: oklch(0.93 0.04 110);
+  --event-collection: oklch(0.34 0.06 50);
+  --event-collection-foreground: oklch(0.93 0.045 65);
+  --event-other: oklch(0.33 0.02 65);
+  --event-other-foreground: oklch(0.93 0.015 78);
 }
 
 @layer base {

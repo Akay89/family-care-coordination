@@ -117,6 +117,56 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          assigned_to: string | null
+          circle_id: string
+          created_at: string
+          created_by: string
+          end_at: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          start_at: string
+          title: string
+          type: Database["public"]["Enums"]["event_type"]
+        }
+        Insert: {
+          assigned_to?: string | null
+          circle_id: string
+          created_at?: string
+          created_by: string
+          end_at?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          start_at: string
+          title: string
+          type?: Database["public"]["Enums"]["event_type"]
+        }
+        Update: {
+          assigned_to?: string | null
+          circle_id?: string
+          created_at?: string
+          created_by?: string
+          end_at?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          start_at?: string
+          title?: string
+          type?: Database["public"]["Enums"]["event_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "care_circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -165,6 +215,7 @@ export type Database = {
     }
     Enums: {
       circle_role: "organiser" | "member" | "viewer"
+      event_type: "appointment" | "visit" | "collection" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -293,6 +344,7 @@ export const Constants = {
   public: {
     Enums: {
       circle_role: ["organiser", "member", "viewer"],
+      event_type: ["appointment", "visit", "collection", "other"],
     },
   },
 } as const
