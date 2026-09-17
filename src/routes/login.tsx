@@ -8,7 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+function safePath(value: unknown) {
+  return typeof value === "string" && /^\/[^/\\]/.test(value) ? value : undefined;
+}
+
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: safePath(search['redirect']),
+  }),
   head: () => ({
     meta: [
       { title: "Sign in to CareCircle" },

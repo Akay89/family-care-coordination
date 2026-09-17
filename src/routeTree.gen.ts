@@ -13,10 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppCalendarRouteImport } from './routes/_authenticated/app/calendar'
 import { Route as AuthenticatedAppChecklistsRouteImport } from './routes/_authenticated/app/checklists'
 import { Route as AuthenticatedAppDocumentsRouteImport } from './routes/_authenticated/app/documents'
+import { Route as AuthenticatedAppMembersRouteImport } from './routes/_authenticated/app/members'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app/profile'
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/app/tasks'
 import { Route as AuthenticatedAppUpdatesRouteImport } from './routes/_authenticated/app/updates'
@@ -41,6 +43,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -64,6 +71,11 @@ const AuthenticatedAppDocumentsRoute =
     path: '/documents',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppMembersRoute = AuthenticatedAppMembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -89,9 +101,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/invite/$token': typeof InviteTokenRoute
   '/app/calendar': typeof AuthenticatedAppCalendarRoute
   '/app/checklists': typeof AuthenticatedAppChecklistsRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/app/members': typeof AuthenticatedAppMembersRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/app/updates': typeof AuthenticatedAppUpdatesRoute
@@ -101,9 +115,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/invite/$token': typeof InviteTokenRoute
   '/app/calendar': typeof AuthenticatedAppCalendarRoute
   '/app/checklists': typeof AuthenticatedAppChecklistsRoute
   '/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/app/members': typeof AuthenticatedAppMembersRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/app/updates': typeof AuthenticatedAppUpdatesRoute
@@ -116,9 +132,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/invite/$token': typeof InviteTokenRoute
   '/_authenticated/app/calendar': typeof AuthenticatedAppCalendarRoute
   '/_authenticated/app/checklists': typeof AuthenticatedAppChecklistsRoute
   '/_authenticated/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/_authenticated/app/members': typeof AuthenticatedAppMembersRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/tasks': typeof AuthenticatedAppTasksRoute
   '/_authenticated/app/updates': typeof AuthenticatedAppUpdatesRoute
@@ -131,9 +149,11 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/app'
+    | '/invite/$token'
     | '/app/calendar'
     | '/app/checklists'
     | '/app/documents'
+    | '/app/members'
     | '/app/profile'
     | '/app/tasks'
     | '/app/updates'
@@ -143,9 +163,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/invite/$token'
     | '/app/calendar'
     | '/app/checklists'
     | '/app/documents'
+    | '/app/members'
     | '/app/profile'
     | '/app/tasks'
     | '/app/updates'
@@ -157,9 +179,11 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/_authenticated/app'
+    | '/invite/$token'
     | '/_authenticated/app/calendar'
     | '/_authenticated/app/checklists'
     | '/_authenticated/app/documents'
+    | '/_authenticated/app/members'
     | '/_authenticated/app/profile'
     | '/_authenticated/app/tasks'
     | '/_authenticated/app/updates'
@@ -171,6 +195,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
+  InviteTokenRoute: typeof InviteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -203,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
@@ -229,6 +261,13 @@ declare module '@tanstack/react-router' {
       path: '/documents'
       fullPath: '/app/documents'
       preLoaderRoute: typeof AuthenticatedAppDocumentsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/members': {
+      id: '/_authenticated/app/members'
+      path: '/members'
+      fullPath: '/app/members'
+      preLoaderRoute: typeof AuthenticatedAppMembersRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/profile': {
@@ -266,6 +305,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCalendarRoute: typeof AuthenticatedAppCalendarRoute
   AuthenticatedAppChecklistsRoute: typeof AuthenticatedAppChecklistsRoute
   AuthenticatedAppDocumentsRoute: typeof AuthenticatedAppDocumentsRoute
+  AuthenticatedAppMembersRoute: typeof AuthenticatedAppMembersRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
   AuthenticatedAppUpdatesRoute: typeof AuthenticatedAppUpdatesRoute
@@ -277,6 +317,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCalendarRoute: AuthenticatedAppCalendarRoute,
   AuthenticatedAppChecklistsRoute: AuthenticatedAppChecklistsRoute,
   AuthenticatedAppDocumentsRoute: AuthenticatedAppDocumentsRoute,
+  AuthenticatedAppMembersRoute: AuthenticatedAppMembersRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
   AuthenticatedAppUpdatesRoute: AuthenticatedAppUpdatesRoute,
@@ -302,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
+  InviteTokenRoute: InviteTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
