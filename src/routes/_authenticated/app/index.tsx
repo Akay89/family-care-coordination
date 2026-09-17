@@ -227,3 +227,43 @@ function TaskCards({ circleId }: { circleId: string | undefined }) {
     </div>
   );
 }
+
+function LatestUpdate({ circleId }: { circleId: string | undefined }) {
+  const updates = useCircleUpdates(circleId, 1);
+  const members = useCircleMemberNames(circleId);
+  useUpdatesRealtime(circleId);
+
+  if (!circleId || updates.isLoading) return null;
+
+  const latest = (updates.data ?? [])[0];
+  const names = new Map(
+    (members.data ?? []).map((member) => [member.user_id, member.full_name]),
+  );
+
+  return (
+    <div className="mt-6 max-w-2xl rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold">Latest update</h2>
+        <Link to="/app/updates" className="text-base font-medium text-primary underline">
+          All updates
+        </Link>
+      </div>
+      {!latest ? (
+        <p className="mt-3 text-base text-muted-foreground">
+          No updates shared yet.
+        </p>
+      ) : (
+        <div className="mt-3">
+          <p className="text-base font-medium">
+            {names.get(latest.author_id) ?? "Family member"}
+            <span className="font-normal text-muted-foreground">
+              {" "}
+              · {relativeTime(latest.created_at)}
+            </span>
+          </p>
+          <p className="mt-1 whitespace-pre-wrap text-base">{latest.body}</p>
+        </div>
+      )}
+    </div>
+  );
+}
