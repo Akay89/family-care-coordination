@@ -87,6 +87,14 @@ export function TaskFormSheet({
         })
         .eq("id", task.id);
       if (error) throw error;
+      const newAssignee = assignedTo === UNASSIGNED ? null : assignedTo;
+      if (newAssignee && newAssignee !== task.assigned_to) {
+        try {
+          await sendAssignmentEmail({ data: { kind: "task", id: task.id } });
+        } catch {
+          // The task is saved; a missed email shouldn't stop the person.
+        }
+      }
       toast.success("Saved your changes.");
       onSaved();
       onOpenChange(false);
