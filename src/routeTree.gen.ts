@@ -13,6 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
+import { Route as AuthenticatedAppCalendarRouteImport } from './routes/_authenticated/app/calendar'
+import { Route as AuthenticatedAppChecklistsRouteImport } from './routes/_authenticated/app/checklists'
+import { Route as AuthenticatedAppDocumentsRouteImport } from './routes/_authenticated/app/documents'
+import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app/profile'
+import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/app/tasks'
+import { Route as AuthenticatedAppUpdatesRouteImport } from './routes/_authenticated/app/updates'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -33,30 +40,119 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCalendarRoute =
+  AuthenticatedAppCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppChecklistsRoute =
+  AuthenticatedAppChecklistsRouteImport.update({
+    id: '/checklists',
+    path: '/checklists',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppDocumentsRoute =
+  AuthenticatedAppDocumentsRouteImport.update({
+    id: '/documents',
+    path: '/documents',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppTasksRoute = AuthenticatedAppTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppUpdatesRoute = AuthenticatedAppUpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/app': typeof AuthenticatedAppRoute
+  '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/calendar': typeof AuthenticatedAppCalendarRoute
+  '/app/checklists': typeof AuthenticatedAppChecklistsRoute
+  '/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/tasks': typeof AuthenticatedAppTasksRoute
+  '/app/updates': typeof AuthenticatedAppUpdatesRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/app': typeof AuthenticatedAppRoute
+  '/app/calendar': typeof AuthenticatedAppCalendarRoute
+  '/app/checklists': typeof AuthenticatedAppChecklistsRoute
+  '/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/tasks': typeof AuthenticatedAppTasksRoute
+  '/app/updates': typeof AuthenticatedAppUpdatesRoute
+  '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authenticated/app': typeof AuthenticatedAppRoute
+  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/calendar': typeof AuthenticatedAppCalendarRoute
+  '/_authenticated/app/checklists': typeof AuthenticatedAppChecklistsRoute
+  '/_authenticated/app/documents': typeof AuthenticatedAppDocumentsRoute
+  '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
+  '/_authenticated/app/tasks': typeof AuthenticatedAppTasksRoute
+  '/_authenticated/app/updates': typeof AuthenticatedAppUpdatesRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/app'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/app'
+    | '/app/calendar'
+    | '/app/checklists'
+    | '/app/documents'
+    | '/app/profile'
+    | '/app/tasks'
+    | '/app/updates'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/app'
-  id: '__root__' | '/' | '/_authenticated' | '/login' | '/_authenticated/app'
+  to:
+    | '/'
+    | '/login'
+    | '/app/calendar'
+    | '/app/checklists'
+    | '/app/documents'
+    | '/app/profile'
+    | '/app/tasks'
+    | '/app/updates'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/app'
+    | '/_authenticated/app/calendar'
+    | '/_authenticated/app/checklists'
+    | '/_authenticated/app/documents'
+    | '/_authenticated/app/profile'
+    | '/_authenticated/app/tasks'
+    | '/_authenticated/app/updates'
+    | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,15 +191,87 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/calendar': {
+      id: '/_authenticated/app/calendar'
+      path: '/calendar'
+      fullPath: '/app/calendar'
+      preLoaderRoute: typeof AuthenticatedAppCalendarRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/checklists': {
+      id: '/_authenticated/app/checklists'
+      path: '/checklists'
+      fullPath: '/app/checklists'
+      preLoaderRoute: typeof AuthenticatedAppChecklistsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/documents': {
+      id: '/_authenticated/app/documents'
+      path: '/documents'
+      fullPath: '/app/documents'
+      preLoaderRoute: typeof AuthenticatedAppDocumentsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/profile': {
+      id: '/_authenticated/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/tasks': {
+      id: '/_authenticated/app/tasks'
+      path: '/tasks'
+      fullPath: '/app/tasks'
+      preLoaderRoute: typeof AuthenticatedAppTasksRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/updates': {
+      id: '/_authenticated/app/updates'
+      path: '/updates'
+      fullPath: '/app/updates'
+      preLoaderRoute: typeof AuthenticatedAppUpdatesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppCalendarRoute: typeof AuthenticatedAppCalendarRoute
+  AuthenticatedAppChecklistsRoute: typeof AuthenticatedAppChecklistsRoute
+  AuthenticatedAppDocumentsRoute: typeof AuthenticatedAppDocumentsRoute
+  AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
+  AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
+  AuthenticatedAppUpdatesRoute: typeof AuthenticatedAppUpdatesRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppCalendarRoute: AuthenticatedAppCalendarRoute,
+  AuthenticatedAppChecklistsRoute: AuthenticatedAppChecklistsRoute,
+  AuthenticatedAppDocumentsRoute: AuthenticatedAppDocumentsRoute,
+  AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
+  AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
+  AuthenticatedAppUpdatesRoute: AuthenticatedAppUpdatesRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAppRoute: typeof AuthenticatedAppRoute
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAppRoute: AuthenticatedAppRoute,
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
