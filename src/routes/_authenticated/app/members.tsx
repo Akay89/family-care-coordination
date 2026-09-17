@@ -204,7 +204,7 @@ function MembersPage() {
               >
                 <div className="min-w-0">
                   <p className="text-base font-medium">
-                    {member.profiles?.full_name?.trim() || "Family member"}
+                    {member.full_name.trim() || "Family member"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {roleDescriptions[member.role as CircleRole]}
