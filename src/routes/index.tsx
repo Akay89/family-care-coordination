@@ -196,8 +196,8 @@ function WhoItsFor() {
 
 function SiteFooter() {
   const footerLinks = [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms", href: "#" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms", href: "/terms" },
     { label: "Contact", href: "#" },
   ];
 

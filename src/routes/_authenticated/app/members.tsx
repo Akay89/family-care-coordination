@@ -1,14 +1,26 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Copy, Mail, Trash2, Users } from "lucide-react";
+import { AlertTriangle, Copy, Mail, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { sendInviteEmail } from "@/lib/notifications.functions";
+import { logActivity } from "@/lib/activity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -32,11 +44,46 @@ const roles: CircleRole[] = ["organiser", "member", "viewer"];
 function MembersPage() {
   const { activeCircle, isOrganiser, refresh } = useCircles();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const circleId = activeCircle?.id;
 
   const [email, setEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<CircleRole>("member");
   const [busy, setBusy] = useState(false);
+  const [deletingCircle, setDeletingCircle] = useState(false);
+
+  async function deleteCircle() {
+    if (!circleId) return;
+    setDeletingCircle(true);
+    try {
+      const { data: files } = await supabase.storage
+        .from("circle-documents")
+        .list(circleId, { limit: 1000 });
+      if (files && files.length > 0) {
+        await supabase.storage
+          .from("circle-documents")
+          .remove(files.map((file) => `${circleId}/${file.name}`));
+      }
+      const { error } = await supabase
+        .from("care_circles")
+        .delete()
+        .eq("id", circleId);
+      if (error) throw error;
+      window.localStorage.removeItem("carecircle:last-circle");
+      queryClient.clear();
+      await refresh();
+      toast.success("Care circle deleted.");
+      navigate({ to: "/app", replace: true });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Sorry, we couldn't delete this circle.",
+      );
+    } finally {
+      setDeletingCircle(false);
+    }
+  }
 
   const members = useQuery({
     queryKey: ["circle-members", circleId],
@@ -114,6 +161,13 @@ function MembersPage() {
         .single();
       if (error) throw error;
       setEmail("");
+      await logActivity({
+        circleId,
+        action: "invite_created",
+        entityType: "circle_invite",
+        entityId: data.id,
+        detail: roleLabels[inviteRole],
+      });
       await invites.refetch();
       await copyLink(data.token);
       try {
@@ -146,6 +200,15 @@ function MembersPage() {
       toast.error(error.message);
       return;
     }
+    if (circleId) {
+      await logActivity({
+        circleId,
+        action: "member_role_changed",
+        entityType: "circle_member",
+        entityId: memberId,
+        detail: roleLabels[role],
+      });
+    }
     await members.refetch();
     await refresh();
     toast.success("Role updated.");
@@ -159,6 +222,14 @@ function MembersPage() {
     if (error) {
       toast.error(error.message);
       return;
+    }
+    if (circleId) {
+      await logActivity({
+        circleId,
+        action: "member_removed",
+        entityType: "circle_member",
+        entityId: memberId,
+      });
     }
     await members.refetch();
     await refresh();
@@ -355,6 +426,49 @@ function MembersPage() {
                 ))}
               </ul>
             )}
+          </div>
+
+          <div className="mt-6 rounded-2xl border-2 border-destructive/40 bg-card p-6">
+            <h2 className="flex items-center gap-2 text-xl font-semibold">
+              <AlertTriangle
+                className="size-5 text-destructive"
+                aria-hidden="true"
+              />
+              Delete this care circle
+            </h2>
+            <p className="mt-2 text-base text-muted-foreground">
+              This removes everything in {activeCircle.name} for everyone: dates,
+              tasks, checklists, updates, saved files and the list of people. It
+              cannot be undone.
+            </p>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="mt-5">
+                  Delete this circle
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Delete “{activeCircle.name}” for everyone?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-base">
+                    Every date, task, checklist, update and saved file in this
+                    circle will be permanently deleted, and everyone will lose
+                    access. This cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep the circle</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={deletingCircle}
+                    onClick={() => void deleteCircle()}
+                  >
+                    {deletingCircle ? "Deleting…" : "Yes, delete everything"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </>
       )}

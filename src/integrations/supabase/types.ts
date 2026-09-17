@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          circle_id: string
+          created_at: string
+          detail: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          circle_id: string
+          created_at?: string
+          detail?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          circle_id?: string
+          created_at?: string
+          detail?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "care_circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       care_circles: {
         Row: {
           cared_for_name: string
@@ -397,6 +438,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          consent_accepted_at: string | null
           created_at: string
           full_name: string
           id: string
@@ -404,6 +446,7 @@ export type Database = {
           phone: string | null
         }
         Insert: {
+          consent_accepted_at?: string | null
           created_at?: string
           full_name?: string
           id: string
@@ -411,6 +454,7 @@ export type Database = {
           phone?: string | null
         }
         Update: {
+          consent_accepted_at?: string | null
           created_at?: string
           full_name?: string
           id?: string
@@ -589,6 +633,7 @@ export type Database = {
           valid: boolean
         }[]
       }
+      circle_organiser_count: { Args: { _circle_id: string }; Returns: number }
       circle_role: {
         Args: { _circle_id: string }
         Returns: Database["public"]["Enums"]["circle_role"]
@@ -596,6 +641,14 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_circle_member: { Args: { _circle_id: string }; Returns: boolean }
       is_circle_organiser: { Args: { _circle_id: string }; Returns: boolean }
+      my_sole_organiser_circles: {
+        Args: never
+        Returns: {
+          circle_id: string
+          circle_name: string
+          other_members: number
+        }[]
+      }
       shares_circle_with: { Args: { _user_id: string }; Returns: boolean }
       update_circle_id: { Args: { _update_id: string }; Returns: string }
     }

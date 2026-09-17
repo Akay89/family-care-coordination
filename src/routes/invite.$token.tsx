@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { CalendarHeart } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activity";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/invite/$token")({
@@ -81,6 +82,11 @@ function InvitePage() {
         return;
       }
       window.localStorage.setItem("carecircle:last-circle", invite.circle_id);
+      await logActivity({
+        circleId: invite.circle_id,
+        action: "invite_accepted",
+        entityType: "circle_member",
+      });
       setState({ status: "joined", circleName: invite.circle_name });
     }
 

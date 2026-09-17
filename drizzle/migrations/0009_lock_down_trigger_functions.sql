@@ -1,0 +1,13 @@
+REVOKE EXECUTE ON FUNCTION public.add_creator_as_organiser() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.create_notification_preferences() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.protect_is_admin() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.protect_last_organiser() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.accept_circle_invite(text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.checklist_circle_id(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.circle_organiser_count(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.circle_role(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.is_admin() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.my_sole_organiser_circles() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.shares_circle_with(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.update_circle_id(uuid) FROM PUBLIC, anon;

@@ -7,7 +7,9 @@ import {
 import { useEffect } from "react";
 
 import { AppShell } from "@/components/app-shell";
+import { ConsentGate } from "@/components/consent-gate";
 import { CirclesProvider, useCircles } from "@/hooks/use-circles";
+import { useIdleLogout } from "@/hooks/use-idle-logout";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: () => (
@@ -21,6 +23,7 @@ function AppLayout() {
   const { circles, isLoading } = useCircles();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useIdleLogout();
 
   useEffect(() => {
     if (isLoading) return;
@@ -31,7 +34,9 @@ function AppLayout() {
 
   return (
     <AppShell>
-      <Outlet />
+      <ConsentGate>
+        <Outlet />
+      </ConsentGate>
     </AppShell>
   );
 }
