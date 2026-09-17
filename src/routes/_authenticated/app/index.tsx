@@ -66,6 +66,8 @@ function AppHome() {
       )}
 
       <UpcomingEvents circleId={activeCircle?.id} />
+      <TaskCards circleId={activeCircle?.id} />
+
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shortcuts.map((item) => (
