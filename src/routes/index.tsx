@@ -56,7 +56,7 @@ function SiteHeader() {
           </span>
         </Link>
         <Link
-          to="/app"
+          to="/login"
           className="rounded-full px-4 py-2 text-base font-semibold text-primary underline-offset-4 hover:underline"
         >
           Open the app
@@ -88,7 +88,7 @@ function Hero() {
         </p>
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
-            to="/app"
+            to="/login"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90"
           >
             Get started free
