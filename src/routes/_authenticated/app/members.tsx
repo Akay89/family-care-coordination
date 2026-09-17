@@ -43,11 +43,25 @@ function MembersPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("circle_members")
-        .select("id, user_id, role, joined_at, profiles(full_name, phone)")
+        .select("id, user_id, role, joined_at")
         .eq("circle_id", circleId!)
         .order("joined_at", { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in(
+          "id",
+          rows.map((row) => row.user_id),
+        );
+      const names = new Map(
+        (profiles ?? []).map((profile) => [profile.id, profile.full_name]),
+      );
+      return rows.map((row) => ({
+        ...row,
+        full_name: names.get(row.user_id) ?? "",
+      }));
     },
   });
 
