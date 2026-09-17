@@ -5,6 +5,7 @@ import { Copy, Mail, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { sendInviteEmail } from "@/lib/notifications.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -109,13 +110,22 @@ function MembersPage() {
           role: inviteRole,
           invited_by: user.id,
         })
-        .select("token")
+        .select("id, token")
         .single();
       if (error) throw error;
       setEmail("");
       await invites.refetch();
       await copyLink(data.token);
-      toast.success("Invite created — share the link with them.");
+      try {
+        const result = await sendInviteEmail({ data: { inviteId: data.id } });
+        toast.success(
+          result?.sent
+            ? "Invite sent by email — the link is copied too."
+            : "Invite created — share the link with them.",
+        );
+      } catch {
+        toast.success("Invite created — share the link with them.");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error

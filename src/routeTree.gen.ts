@@ -24,6 +24,8 @@ import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/app/tasks'
 import { Route as AuthenticatedAppUpdatesRouteImport } from './routes/_authenticated/app/updates'
 import { Route as AuthenticatedAppWelcomeRouteImport } from './routes/_authenticated/app/welcome'
+import { Route as ApiPublicUnsubscribeRouteImport } from './routes/api/public/unsubscribe'
+import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -102,6 +104,17 @@ const AuthenticatedAppWelcomeRoute = AuthenticatedAppWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const ApiPublicUnsubscribeRoute = ApiPublicUnsubscribeRouteImport.update({
+  id: '/api/public/unsubscribe',
+  path: '/api/public/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksDailyDigestRoute =
+  ApiPublicHooksDailyDigestRouteImport.update({
+    id: '/api/public/hooks/daily-digest',
+    path: '/api/public/hooks/daily-digest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -117,7 +130,9 @@ export interface FileRoutesByFullPath {
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/app/updates': typeof AuthenticatedAppUpdatesRoute
   '/app/welcome': typeof AuthenticatedAppWelcomeRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,7 +147,9 @@ export interface FileRoutesByTo {
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/app/updates': typeof AuthenticatedAppUpdatesRoute
   '/app/welcome': typeof AuthenticatedAppWelcomeRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -150,7 +167,9 @@ export interface FileRoutesById {
   '/_authenticated/app/tasks': typeof AuthenticatedAppTasksRoute
   '/_authenticated/app/updates': typeof AuthenticatedAppUpdatesRoute
   '/_authenticated/app/welcome': typeof AuthenticatedAppWelcomeRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -168,7 +187,9 @@ export interface FileRouteTypes {
     | '/app/tasks'
     | '/app/updates'
     | '/app/welcome'
+    | '/api/public/unsubscribe'
     | '/app/'
+    | '/api/public/hooks/daily-digest'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -183,7 +204,9 @@ export interface FileRouteTypes {
     | '/app/tasks'
     | '/app/updates'
     | '/app/welcome'
+    | '/api/public/unsubscribe'
     | '/app'
+    | '/api/public/hooks/daily-digest'
   id:
     | '__root__'
     | '/'
@@ -200,7 +223,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app/tasks'
     | '/_authenticated/app/updates'
     | '/_authenticated/app/welcome'
+    | '/api/public/unsubscribe'
     | '/_authenticated/app/'
+    | '/api/public/hooks/daily-digest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -208,6 +233,8 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
   InviteTokenRoute: typeof InviteTokenRoute
+  ApiPublicUnsubscribeRoute: typeof ApiPublicUnsubscribeRoute
+  ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -317,6 +344,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppWelcomeRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/unsubscribe': {
+      id: '/api/public/unsubscribe'
+      path: '/api/public/unsubscribe'
+      fullPath: '/api/public/unsubscribe'
+      preLoaderRoute: typeof ApiPublicUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/daily-digest': {
+      id: '/api/public/hooks/daily-digest'
+      path: '/api/public/hooks/daily-digest'
+      fullPath: '/api/public/hooks/daily-digest'
+      preLoaderRoute: typeof ApiPublicHooksDailyDigestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -365,6 +406,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   InviteTokenRoute: InviteTokenRoute,
+  ApiPublicUnsubscribeRoute: ApiPublicUnsubscribeRoute,
+  ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

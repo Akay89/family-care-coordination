@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { sendAssignmentEmail } from "@/lib/notifications.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,19 +104,36 @@ export function EventFormSheet({
         assigned_to: assignedTo === UNASSIGNED ? null : assignedTo,
       };
 
+      const newAssignee = payload.assigned_to;
+      let notifyId: string | null = null;
+
       if (event) {
         const { error } = await supabase
           .from("events")
           .update(payload)
           .eq("id", event.id);
         if (error) throw error;
+        if (newAssignee && newAssignee !== event.assigned_to) {
+          notifyId = event.id;
+        }
         toast.success("Saved your changes.");
       } else {
-        const { error } = await supabase
+        const { data: created, error } = await supabase
           .from("events")
-          .insert({ ...payload, circle_id: circleId, created_by: user.id });
+          .insert({ ...payload, circle_id: circleId, created_by: user.id })
+          .select("id")
+          .single();
         if (error) throw error;
+        if (newAssignee && created) notifyId = created.id;
         toast.success("Added to the calendar.");
+      }
+
+      if (notifyId) {
+        try {
+          await sendAssignmentEmail({ data: { kind: "event", id: notifyId } });
+        } catch {
+          // Saved either way — a missed email shouldn't block the family.
+        }
       }
       onSaved();
       onOpenChange(false);

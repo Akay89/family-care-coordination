@@ -368,6 +368,33 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          assignment_emails: boolean
+          created_at: string
+          daily_digest: boolean
+          invite_emails: boolean
+          unsubscribe_token: string
+          user_id: string
+        }
+        Insert: {
+          assignment_emails?: boolean
+          created_at?: string
+          daily_digest?: boolean
+          invite_emails?: boolean
+          unsubscribe_token?: string
+          user_id: string
+        }
+        Update: {
+          assignment_emails?: boolean
+          created_at?: string
+          daily_digest?: boolean
+          invite_emails?: boolean
+          unsubscribe_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

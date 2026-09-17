@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { sendAssignmentEmail } from "@/lib/notifications.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,6 +88,14 @@ export function TaskFormSheet({
         })
         .eq("id", task.id);
       if (error) throw error;
+      const newAssignee = assignedTo === UNASSIGNED ? null : assignedTo;
+      if (newAssignee && newAssignee !== task.assigned_to) {
+        try {
+          await sendAssignmentEmail({ data: { kind: "task", id: task.id } });
+        } catch {
+          // The task is saved; a missed email shouldn't stop the person.
+        }
+      }
       toast.success("Saved your changes.");
       onSaved();
       onOpenChange(false);
