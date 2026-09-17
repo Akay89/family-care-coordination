@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCircleTasks } from "@/hooks/use-circle-tasks";
+import {
+  useCircleUpdates,
+  useUpdatesRealtime,
+} from "@/hooks/use-circle-updates";
+import { relativeTime } from "@/lib/updates";
 import { dueLabel, isThisWeek } from "@/lib/tasks";
 import { useCircles } from "@/hooks/use-circles";
 import {
@@ -71,6 +76,7 @@ function AppHome() {
 
       <UpcomingEvents circleId={activeCircle?.id} />
       <TaskCards circleId={activeCircle?.id} />
+      <LatestUpdate circleId={activeCircle?.id} />
 
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -218,6 +224,46 @@ function TaskCards({ circleId }: { circleId: string | undefined }) {
           </ul>
         )}
       </div>
+    </div>
+  );
+}
+
+function LatestUpdate({ circleId }: { circleId: string | undefined }) {
+  const updates = useCircleUpdates(circleId, 1);
+  const members = useCircleMemberNames(circleId);
+  useUpdatesRealtime(circleId);
+
+  if (!circleId || updates.isLoading) return null;
+
+  const latest = (updates.data ?? [])[0];
+  const names = new Map(
+    (members.data ?? []).map((member) => [member.user_id, member.full_name]),
+  );
+
+  return (
+    <div className="mt-6 max-w-2xl rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold">Latest update</h2>
+        <Link to="/app/updates" className="text-base font-medium text-primary underline">
+          All updates
+        </Link>
+      </div>
+      {!latest ? (
+        <p className="mt-3 text-base text-muted-foreground">
+          No updates shared yet.
+        </p>
+      ) : (
+        <div className="mt-3">
+          <p className="text-base font-medium">
+            {names.get(latest.author_id) ?? "Family member"}
+            <span className="font-normal text-muted-foreground">
+              {" "}
+              · {relativeTime(latest.created_at)}
+            </span>
+          </p>
+          <p className="mt-1 whitespace-pre-wrap text-base">{latest.body}</p>
+        </div>
+      )}
     </div>
   );
 }
