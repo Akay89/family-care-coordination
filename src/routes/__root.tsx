@@ -77,11 +77,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "CareCircle — Care coordination for families" },
+      {
+        name: "description",
+        content:
+          "CareCircle helps families in the UK share the practical side of caring for a relative. No medical advice.",
+      },
+      { name: "author", content: "CareCircle" },
+      { property: "og:title", content: "CareCircle — Care coordination for families" },
+      {
+        property: "og:description",
+        content:
+          "Caring for someone is hard enough. The admin shouldn't be. Free to start.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
