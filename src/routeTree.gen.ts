@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/app/tasks'
 import { Route as AuthenticatedAppUpdatesRouteImport } from './routes/_authenticated/app/updates'
 import { Route as AuthenticatedAppWelcomeRouteImport } from './routes/_authenticated/app/welcome'
+import { Route as ApiPublicUnsubscribeRouteImport } from './routes/api/public/unsubscribe'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -102,6 +103,11 @@ const AuthenticatedAppWelcomeRoute = AuthenticatedAppWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const ApiPublicUnsubscribeRoute = ApiPublicUnsubscribeRouteImport.update({
+  id: '/api/public/unsubscribe',
+  path: '/api/public/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/app/updates': typeof AuthenticatedAppUpdatesRoute
   '/app/welcome': typeof AuthenticatedAppWelcomeRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/app/tasks': typeof AuthenticatedAppTasksRoute
   '/app/updates': typeof AuthenticatedAppUpdatesRoute
   '/app/welcome': typeof AuthenticatedAppWelcomeRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/_authenticated/app/tasks': typeof AuthenticatedAppTasksRoute
   '/_authenticated/app/updates': typeof AuthenticatedAppUpdatesRoute
   '/_authenticated/app/welcome': typeof AuthenticatedAppWelcomeRoute
+  '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/app/tasks'
     | '/app/updates'
     | '/app/welcome'
+    | '/api/public/unsubscribe'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/app/tasks'
     | '/app/updates'
     | '/app/welcome'
+    | '/api/public/unsubscribe'
     | '/app'
   id:
     | '__root__'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/tasks'
     | '/_authenticated/app/updates'
     | '/_authenticated/app/welcome'
+    | '/api/public/unsubscribe'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
   InviteTokenRoute: typeof InviteTokenRoute
+  ApiPublicUnsubscribeRoute: typeof ApiPublicUnsubscribeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -317,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppWelcomeRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/unsubscribe': {
+      id: '/api/public/unsubscribe'
+      path: '/api/public/unsubscribe'
+      fullPath: '/api/public/unsubscribe'
+      preLoaderRoute: typeof ApiPublicUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -365,6 +385,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   InviteTokenRoute: InviteTokenRoute,
+  ApiPublicUnsubscribeRoute: ApiPublicUnsubscribeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
