@@ -188,6 +188,59 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          circle_id: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          recurrence: Database["public"]["Enums"]["task_recurrence"]
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          circle_id: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          recurrence?: Database["public"]["Enums"]["task_recurrence"]
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+        }
+        Update: {
+          assigned_to?: string | null
+          circle_id?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          recurrence?: Database["public"]["Enums"]["task_recurrence"]
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "care_circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -216,6 +269,8 @@ export type Database = {
     Enums: {
       circle_role: "organiser" | "member" | "viewer"
       event_type: "appointment" | "visit" | "collection" | "other"
+      task_recurrence: "none" | "daily" | "weekly" | "monthly"
+      task_status: "todo" | "done"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -345,6 +400,8 @@ export const Constants = {
     Enums: {
       circle_role: ["organiser", "member", "viewer"],
       event_type: ["appointment", "visit", "collection", "other"],
+      task_recurrence: ["none", "daily", "weekly", "monthly"],
+      task_status: ["todo", "done"],
     },
   },
 } as const
