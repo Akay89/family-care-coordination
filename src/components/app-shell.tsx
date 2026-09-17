@@ -3,13 +3,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   CalendarDays,
   CalendarHeart,
+  Check,
   CheckSquare,
+  ChevronDown,
   FileText,
   Home,
   ListChecks,
   LogOut,
   MessageCircle,
+  Plus,
   User,
+  Users,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -19,9 +23,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCircles, roleLabels } from "@/hooks/use-circles";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -31,12 +37,14 @@ const navItems = [
   { to: "/app/documents", label: "Documents", icon: FileText },
   { to: "/app/checklists", label: "Checklists", icon: ListChecks },
   { to: "/app/updates", label: "Updates", icon: MessageCircle },
+  { to: "/app/members", label: "People", icon: Users },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { circles, activeCircle, selectCircle } = useCircles();
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -51,18 +59,63 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
-        <div className="container-page flex items-center justify-between py-3">
-          <Link to="/app" className="flex items-center gap-2.5">
-            <span
-              className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground"
-              aria-hidden="true"
-            >
-              <CalendarHeart className="size-5" />
-            </span>
-            <span className="font-display text-xl font-semibold tracking-tight">
-              CareCircle
-            </span>
-          </Link>
+        <div className="container-page flex flex-wrap items-center justify-between gap-3 py-3">
+          <div className="flex items-center gap-3">
+            <Link to="/app" className="flex items-center gap-2.5">
+              <span
+                className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                aria-hidden="true"
+              >
+                <CalendarHeart className="size-5" />
+              </span>
+              <span className="font-display text-xl font-semibold tracking-tight">
+                CareCircle
+              </span>
+            </Link>
+
+            {activeCircle && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="max-w-[15rem] gap-2">
+                    <span className="truncate">{activeCircle.name}</span>
+                    <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel>Your care circles</DropdownMenuLabel>
+                  {circles.map((circle) => (
+                    <DropdownMenuItem
+                      key={circle.id}
+                      className="cursor-pointer text-base"
+                      onSelect={() => selectCircle(circle.id)}
+                    >
+                      {circle.id === activeCircle.id ? (
+                        <Check className="size-4" aria-hidden="true" />
+                      ) : (
+                        <span className="size-4" aria-hidden="true" />
+                      )}
+                      <span className="min-w-0 flex-1 truncate">
+                        {circle.name}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {roleLabels[circle.role]}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/app/welcome"
+                      className="cursor-pointer text-base"
+                    >
+                      <Plus className="size-4" aria-hidden="true" />
+                      New care circle
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -92,10 +145,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <div className="container-page flex flex-1 gap-8 py-6">
-        <nav
-          aria-label="Main"
-          className="hidden w-56 shrink-0 md:block"
-        >
+        <nav aria-label="Main" className="hidden w-56 shrink-0 md:block">
           <ul className="sticky top-24 space-y-1">
             {navItems.map((item) => (
               <li key={item.to}>
@@ -123,9 +173,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card md:hidden"
       >
-        <ul className="grid grid-cols-6">
+        <ul className="flex overflow-x-auto">
           {navItems.map((item) => (
-            <li key={item.to}>
+            <li key={item.to} className="min-w-[4.5rem] flex-1">
               <Link
                 to={item.to}
                 className={cn(
