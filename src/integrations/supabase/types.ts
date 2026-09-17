@@ -117,6 +117,50 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          category: Database["public"]["Enums"]["document_category"]
+          circle_id: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_path: string
+          id: string
+          size_bytes: number
+          uploaded_by: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["document_category"]
+          circle_id: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          size_bytes?: number
+          uploaded_by: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["document_category"]
+          circle_id?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          size_bytes?: number
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "care_circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           assigned_to: string | null
@@ -268,6 +312,12 @@ export type Database = {
     }
     Enums: {
       circle_role: "organiser" | "member" | "viewer"
+      document_category:
+        | "benefits"
+        | "legal"
+        | "letters"
+        | "insurance"
+        | "other"
       event_type: "appointment" | "visit" | "collection" | "other"
       task_recurrence: "none" | "daily" | "weekly" | "monthly"
       task_status: "todo" | "done"
@@ -399,6 +449,7 @@ export const Constants = {
   public: {
     Enums: {
       circle_role: ["organiser", "member", "viewer"],
+      document_category: ["benefits", "legal", "letters", "insurance", "other"],
       event_type: ["appointment", "visit", "collection", "other"],
       task_recurrence: ["none", "daily", "weekly", "monthly"],
       task_status: ["todo", "done"],
