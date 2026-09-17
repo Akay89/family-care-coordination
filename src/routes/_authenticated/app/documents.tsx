@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useCircles } from "@/hooks/use-circles";
+import { logActivity } from "@/lib/activity";
 import {
   useCircleDocuments,
   useCircleMemberNames,
@@ -121,19 +122,31 @@ function DocumentsPage() {
         .upload(path, file, { contentType: file.type, upsert: false });
       if (uploadError) throw uploadError;
 
-      const { error: rowError } = await supabase.from("documents").insert({
-        circle_id: circleId,
-        file_path: path,
-        file_name: file.name,
-        category,
-        description: description.trim() === "" ? null : description.trim(),
-        uploaded_by: uploader,
-        size_bytes: file.size,
-      });
+      const { data: inserted, error: rowError } = await supabase
+        .from("documents")
+        .insert({
+          circle_id: circleId,
+          file_path: path,
+          file_name: file.name,
+          category,
+          description: description.trim() === "" ? null : description.trim(),
+          uploaded_by: uploader,
+          size_bytes: file.size,
+        })
+        .select("id")
+        .single();
       if (rowError) {
         await supabase.storage.from("circle-documents").remove([path]);
         throw rowError;
       }
+
+      await logActivity({
+        circleId,
+        action: "document_uploaded",
+        entityType: "document",
+        entityId: inserted?.id ?? null,
+        detail: categoryLabels[category],
+      });
 
       toast.success("Saved to your circle's documents.");
       setFile(null);
@@ -161,6 +174,14 @@ function DocumentsPage() {
       return;
     }
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    if (circleId) {
+      await logActivity({
+        circleId,
+        action: "document_opened",
+        entityType: "document",
+        entityId: doc.id,
+      });
+    }
   }
 
   async function handleDelete() {
@@ -173,6 +194,12 @@ function DocumentsPage() {
       return;
     }
     await supabase.storage.from("circle-documents").remove([doc.file_path]);
+    await logActivity({
+      circleId: doc.circle_id,
+      action: "document_deleted",
+      entityType: "document",
+      entityId: doc.id,
+    });
     toast.success("File removed.");
     await refetch();
   }

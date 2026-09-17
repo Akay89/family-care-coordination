@@ -7,6 +7,7 @@ import {
   CheckSquare,
   ChevronDown,
   FileText,
+  History,
   Home,
   ListChecks,
   LogOut,
@@ -46,7 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { circles, activeCircle, selectCircle } = useCircles();
+  const { circles, activeCircle, selectCircle, isOrganiser } = useCircles();
   const isAdmin = useIsAdmin();
 
   async function handleSignOut() {
@@ -134,6 +135,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                   Profile
                 </Link>
               </DropdownMenuItem>
+              {isOrganiser && (
+                <DropdownMenuItem asChild>
+                  <Link to="/app/activity" className="cursor-pointer text-base">
+                    <History className="size-4" aria-hidden="true" />
+                    Circle activity
+                  </Link>
+                </DropdownMenuItem>
+              )}
               {isAdmin.data && (
                 <DropdownMenuItem asChild>
                   <Link to="/admin" className="cursor-pointer text-base">
