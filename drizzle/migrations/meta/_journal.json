@@ -15,6 +15,13 @@
       "when": 1789640652039,
       "tag": "0001_create_care_circles",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789646365356,
+      "tag": "0002_create_events",
+      "breakpoints": true
     }
   ]
 }
