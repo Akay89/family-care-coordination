@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCircleTasks } from "@/hooks/use-circle-tasks";
+import {
+  useCircleUpdates,
+  useUpdatesRealtime,
+} from "@/hooks/use-circle-updates";
+import { relativeTime } from "@/lib/updates";
 import { dueLabel, isThisWeek } from "@/lib/tasks";
 import { useCircles } from "@/hooks/use-circles";
 import {
