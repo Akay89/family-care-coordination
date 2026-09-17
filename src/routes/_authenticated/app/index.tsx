@@ -1,23 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CalendarDays, CheckSquare, ListChecks, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { useCircleTasks } from "@/hooks/use-circle-tasks";
 import {
   useCircleUpdates,
   useUpdatesRealtime,
 } from "@/hooks/use-circle-updates";
 import { relativeTime } from "@/lib/updates";
-import { dueLabel, isThisWeek } from "@/lib/tasks";
+import { dueLabel, isOverdue } from "@/lib/tasks";
 import { useCircles } from "@/hooks/use-circles";
 import {
+  useCircleEvents,
   useCircleMemberNames,
-  useUpcomingEvents,
 } from "@/hooks/use-circle-events";
+import {
+  useCircleChecklistItems,
+  useCircleChecklists,
+} from "@/hooks/use-checklists";
 import { cn } from "@/lib/utils";
 import {
-  dayHeading,
+  dayKey,
   eventTypeBadgeClass,
   eventTypeLabels,
   formatTimeRange,
@@ -27,243 +33,391 @@ export const Route = createFileRoute("/_authenticated/app/")({
   component: AppHome,
 });
 
-const shortcuts = [
-  {
-    to: "/app/calendar",
-    label: "Shared calendar",
-    description: "Appointments, visits and who's covering them.",
-    icon: CalendarDays,
-  },
-  {
-    to: "/app/tasks",
-    label: "Task rota",
-    description: "Share the jobs so nothing lands on one person.",
-    icon: CheckSquare,
-  },
-  {
-    to: "/app/checklists",
-    label: "Checklists",
-    description: "Step-by-step help with benefits and paperwork.",
-    icon: ListChecks,
-  },
-  {
-    to: "/app/members",
-    label: "People",
-    description: "See who's helping and invite more family or friends.",
-    icon: Users,
-  },
-] as const;
+function useUserId() {
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+  return userId;
+}
+
+function useFirstName(userId: string | null) {
+  return useQuery({
+    queryKey: ["my-first-name", userId],
+    enabled: Boolean(userId),
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", userId!)
+        .maybeSingle();
+      return data?.full_name?.trim().split(/\s+/)[0] ?? null;
+    },
+  });
+}
+
+function Card({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold">{title}</h2>
+        {action}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function EmptyState({
+  message,
+  actionTo,
+  actionLabel,
+}: {
+  message: string;
+  actionTo: string;
+  actionLabel: string;
+}) {
+  return (
+    <div className="mt-3">
+      <p className="text-base text-muted-foreground">{message}</p>
+      <Button asChild variant="secondary" className="mt-3">
+        <Link to={actionTo}>{actionLabel}</Link>
+      </Button>
+    </div>
+  );
+}
 
 function AppHome() {
-  const { activeCircle } = useCircles();
+  const { activeCircle, canEdit } = useCircles();
+  const circleId = activeCircle?.id;
+  const userId = useUserId();
+  const firstName = useFirstName(userId);
+  const queryClient = useQueryClient();
+
+  const events = useCircleEvents(circleId);
+  const tasks = useCircleTasks(circleId);
+  const updates = useCircleUpdates(circleId, 1);
+  const members = useCircleMemberNames(circleId);
+  const checklists = useCircleChecklists(circleId);
+  const checklistItems = useCircleChecklistItems(
+    (checklists.data ?? []).map((checklist) => checklist.id),
+  );
+  useUpdatesRealtime(circleId);
+
+  const names = new Map(
+    (members.data ?? []).map((member) => [member.user_id, member.full_name]),
+  );
+  const nameOf = (id: string | null) =>
+    id ? (names.get(id) ?? "Family member") : "Unassigned";
+
+  async function claimEvent(eventId: string) {
+    if (!userId) return;
+    const { error } = await supabase
+      .from("events")
+      .update({ assigned_to: userId })
+      .eq("id", eventId);
+    if (error) toast.error("Sorry, that didn't work. Please try again.");
+    else await queryClient.invalidateQueries({ queryKey: ["events", circleId] });
+  }
+
+  async function claimTask(taskId: string) {
+    if (!userId) return;
+    const { error } = await supabase
+      .from("tasks")
+      .update({ assigned_to: userId })
+      .eq("id", taskId);
+    if (error) toast.error("Sorry, that didn't work. Please try again.");
+    else await queryClient.invalidateQueries({ queryKey: ["tasks", circleId] });
+  }
+
+  const todayKey = dayKey(new Date());
+  const allEvents = events.data ?? [];
+  const todaysEvents = allEvents.filter(
+    (event) => dayKey(new Date(event.start_at)) === todayKey,
+  );
+  const openTasks = (tasks.data ?? []).filter((task) => task.status === "todo");
+  const unassignedEvents = allEvents.filter(
+    (event) => !event.assigned_to && new Date(event.start_at) >= new Date(),
+  );
+  const unassignedTasks = openTasks.filter((task) => !task.assigned_to);
+  const myTasks = openTasks.filter((task) => task.assigned_to === userId);
+  const latestUpdate = (updates.data ?? [])[0];
 
   return (
-    <section>
+    <section className="mx-auto max-w-3xl">
       <h1 className="text-3xl font-semibold sm:text-4xl">
-        {activeCircle?.name ?? "Home"}
+        Hello{firstName.data ? `, ${firstName.data}` : ""}
       </h1>
-      <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-        {activeCircle
-          ? `Everything the family is coordinating for ${activeCircle.cared_for_name || "your relative"}.`
-          : "Welcome to your family space."}
+      <p className="mt-2 text-lg text-muted-foreground">
+        Here's what's happening in {activeCircle?.name ?? "your care circle"}.
       </p>
 
-      {activeCircle?.cared_for_notes && (
-        <p className="mt-4 max-w-2xl rounded-2xl border border-border bg-card p-4 text-base">
-          {activeCircle.cared_for_notes}
-        </p>
-      )}
-
-      <UpcomingEvents circleId={activeCircle?.id} />
-      <TaskCards circleId={activeCircle?.id} />
-      <LatestUpdate circleId={activeCircle?.id} />
-
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {shortcuts.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className="rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary"
-          >
-            <span
-              className="flex size-11 items-center justify-center rounded-xl bg-teal-soft text-primary"
-              aria-hidden="true"
+      <div className="mt-8 space-y-5">
+        {/* Today */}
+        <Card
+          title="Today"
+          action={
+            <Link
+              to="/app/calendar"
+              className="text-base font-medium text-primary underline"
             >
-              <item.icon className="size-6" />
-            </span>
-            <h2 className="mt-4 text-xl font-semibold">{item.label}</h2>
-            <p className="mt-2 text-base text-muted-foreground">
-              {item.description}
+              Calendar
+            </Link>
+          }
+        >
+          {todaysEvents.length === 0 ? (
+            <EmptyState
+              message="Nothing planned for today."
+              actionTo="/app/calendar"
+              actionLabel="Add your first appointment"
+            />
+          ) : (
+            <ul className="mt-4 space-y-4">
+              {todaysEvents.map((event) => (
+                <li key={event.id} className="flex flex-wrap items-center gap-3">
+                  <span
+                    className={cn(
+                      "rounded-full px-3 py-1 text-sm font-medium",
+                      eventTypeBadgeClass[event.type],
+                    )}
+                  >
+                    {eventTypeLabels[event.type]}
+                  </span>
+                  <span className="text-base font-medium">
+                    {formatTimeRange(event.start_at, event.end_at)}
+                  </span>
+                  <span className="text-base">{event.title}</span>
+                  <span className="text-base text-muted-foreground">
+                    {nameOf(event.assigned_to)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        {/* Needs someone */}
+        <Card
+          title="Needs someone"
+          action={
+            <Link
+              to="/app/tasks"
+              className="text-base font-medium text-primary underline"
+            >
+              Tasks
+            </Link>
+          }
+        >
+          {unassignedEvents.length === 0 && unassignedTasks.length === 0 ? (
+            <p className="mt-3 text-base text-muted-foreground">
+              Everything has someone. Lovely.
             </p>
-          </Link>
-        ))}
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {unassignedEvents.slice(0, 3).map((event) => (
+                <li
+                  key={event.id}
+                  className="flex flex-wrap items-center justify-between gap-3"
+                >
+                  <span className="text-base">
+                    {event.title}
+                    <span className="text-muted-foreground">
+                      {" "}
+                      — {dayHeadingShort(event.start_at)},{" "}
+                      {formatTimeRange(event.start_at, event.end_at)}
+                    </span>
+                  </span>
+                  {canEdit && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => void claimEvent(event.id)}
+                    >
+                      I can do this
+                    </Button>
+                  )}
+                </li>
+              ))}
+              {unassignedTasks.slice(0, 4).map((task) => (
+                <li
+                  key={task.id}
+                  className="flex flex-wrap items-center justify-between gap-3"
+                >
+                  <span className="text-base">
+                    {task.title}
+                    {task.due_date && (
+                      <span
+                        className={cn(
+                          isOverdue(task) && "font-medium text-destructive",
+                          !isOverdue(task) && "text-muted-foreground",
+                        )}
+                      >
+                        {" "}
+                        — {dueLabel(task.due_date)}
+                      </span>
+                    )}
+                  </span>
+                  {canEdit && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => void claimTask(task.id)}
+                    >
+                      Claim
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        {/* Your jobs */}
+        <Card title="Your jobs">
+          {myTasks.length === 0 ? (
+            <p className="mt-3 text-base text-muted-foreground">
+              Nothing is assigned to you right now.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {myTasks.slice(0, 5).map((task) => (
+                <li key={task.id} className="text-base">
+                  {task.title}
+                  {task.due_date && (
+                    <span
+                      className={cn(
+                        isOverdue(task) && "font-medium text-destructive",
+                        !isOverdue(task) && "text-muted-foreground",
+                      )}
+                    >
+                      {" "}
+                      — {dueLabel(task.due_date)}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        {/* Latest update */}
+        <Card
+          title="Latest update"
+          action={
+            <Link
+              to="/app/updates"
+              className="text-base font-medium text-primary underline"
+            >
+              All updates
+            </Link>
+          }
+        >
+          {!latestUpdate ? (
+            <EmptyState
+              message="No updates shared yet. A quick note helps everyone feel in the loop."
+              actionTo="/app/updates"
+              actionLabel="Share the first update"
+            />
+          ) : (
+            <div className="mt-3">
+              <p className="text-base font-medium">
+                {nameOf(latestUpdate.author_id)}
+                <span className="font-normal text-muted-foreground">
+                  {" "}
+                  · {relativeTime(latestUpdate.created_at)}
+                </span>
+              </p>
+              <p className="mt-1 whitespace-pre-wrap text-base">
+                {latestUpdate.body}
+              </p>
+            </div>
+          )}
+        </Card>
+
+        {/* Checklist progress */}
+        <Card
+          title="Checklists"
+          action={
+            <Link
+              to="/app/checklists"
+              className="text-base font-medium text-primary underline"
+            >
+              Checklists
+            </Link>
+          }
+        >
+          {(checklists.data ?? []).length === 0 ? (
+            <EmptyState
+              message="Guided checklists help with benefits and paperwork, one step at a time."
+              actionTo="/app/checklists"
+              actionLabel="Start a checklist"
+            />
+          ) : (
+            <ul className="mt-4 space-y-4">
+              {(checklists.data ?? []).map((checklist) => {
+                const items = (checklistItems.data ?? []).filter(
+                  (item) => item.circle_checklist_id === checklist.id,
+                );
+                const done = items.filter((item) => item.is_done).length;
+                const total = items.length;
+                const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+                return (
+                  <li key={checklist.id}>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <Link
+                        to="/app/checklists"
+                        className="text-base font-medium underline"
+                      >
+                        {checklist.title}
+                      </Link>
+                      <span className="text-sm text-muted-foreground">
+                        {done} of {total} done
+                      </span>
+                    </div>
+                    <div
+                      className="mt-2 h-2.5 overflow-hidden rounded-full bg-muted"
+                      role="progressbar"
+                      aria-valuenow={percent}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`${checklist.title} progress`}
+                    >
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Card>
       </div>
     </section>
   );
 }
 
-function UpcomingEvents({ circleId }: { circleId: string | undefined }) {
-  const events = useUpcomingEvents(circleId, 3);
-  const members = useCircleMemberNames(circleId);
-
-  if (!circleId || events.isLoading) return null;
-
-  const names = new Map(
-    (members.data ?? []).map((member) => [member.user_id, member.full_name]),
+function dayHeadingShort(value: string) {
+  const date = new Date(value);
+  const today = new Date();
+  const days = Math.round(
+    (new Date(date).setHours(0, 0, 0, 0) - new Date(today).setHours(0, 0, 0, 0)) /
+      (24 * 60 * 60 * 1000),
   );
-  const rows = events.data ?? [];
-
-  return (
-    <div className="mt-8 max-w-2xl rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Coming up next</h2>
-        <Link to="/app/calendar" className="text-base font-medium text-primary underline">
-          See the calendar
-        </Link>
-      </div>
-
-      {rows.length === 0 ? (
-        <p className="mt-3 text-base text-muted-foreground">
-          Nothing planned yet.
-        </p>
-      ) : (
-        <ul className="mt-4 space-y-4">
-          {rows.map((event) => (
-            <li key={event.id} className="flex flex-wrap items-center gap-3">
-              <span
-                className={cn(
-                  "rounded-full px-3 py-1 text-sm font-medium",
-                  eventTypeBadgeClass[event.type],
-                )}
-              >
-                {eventTypeLabels[event.type]}
-              </span>
-              <span className="text-base font-medium">
-                {dayHeading(new Date(event.start_at))},{" "}
-                {formatTimeRange(event.start_at, event.end_at)}
-              </span>
-              <span className="text-base">{event.title}</span>
-              <span className="text-base text-muted-foreground">
-                {event.assigned_to
-                  ? (names.get(event.assigned_to) ?? "Family member")
-                  : "Unassigned"}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function TaskCards({ circleId }: { circleId: string | undefined }) {
-  const tasks = useCircleTasks(circleId);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
-  }, []);
-
-  if (!circleId || tasks.isLoading) return null;
-
-  const open = (tasks.data ?? []).filter((task) => task.status === "todo");
-  const unassigned = open.filter((task) => !task.assigned_to);
-  const mine = open.filter(
-    (task) =>
-      task.assigned_to === userId && task.due_date && isThisWeek(task.due_date),
-  );
-
-  return (
-    <div className="mt-6 grid max-w-4xl gap-4 sm:grid-cols-2">
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-xl font-semibold">
-            {unassigned.length === 0
-              ? "Everything has someone"
-              : `${unassigned.length} ${unassigned.length === 1 ? "task needs" : "tasks need"} someone`}
-          </h2>
-          <Link to="/app/tasks" className="text-base font-medium text-primary underline">
-            Tasks
-          </Link>
-        </div>
-        {unassigned.length > 0 && (
-          <ul className="mt-3 space-y-2">
-            {unassigned.slice(0, 4).map((task) => (
-              <li key={task.id} className="text-base">
-                {task.title}
-                {task.due_date && (
-                  <span className="text-muted-foreground">
-                    {" "}
-                    — {dueLabel(task.due_date)}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-xl font-semibold">Your tasks this week</h2>
-        {mine.length === 0 ? (
-          <p className="mt-3 text-base text-muted-foreground">
-            Nothing due from you this week.
-          </p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {mine.slice(0, 4).map((task) => (
-              <li key={task.id} className="text-base">
-                {task.title}
-                <span className="text-muted-foreground">
-                  {" "}
-                  — {dueLabel(task.due_date!)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function LatestUpdate({ circleId }: { circleId: string | undefined }) {
-  const updates = useCircleUpdates(circleId, 1);
-  const members = useCircleMemberNames(circleId);
-  useUpdatesRealtime(circleId);
-
-  if (!circleId || updates.isLoading) return null;
-
-  const latest = (updates.data ?? [])[0];
-  const names = new Map(
-    (members.data ?? []).map((member) => [member.user_id, member.full_name]),
-  );
-
-  return (
-    <div className="mt-6 max-w-2xl rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Latest update</h2>
-        <Link to="/app/updates" className="text-base font-medium text-primary underline">
-          All updates
-        </Link>
-      </div>
-      {!latest ? (
-        <p className="mt-3 text-base text-muted-foreground">
-          No updates shared yet.
-        </p>
-      ) : (
-        <div className="mt-3">
-          <p className="text-base font-medium">
-            {names.get(latest.author_id) ?? "Family member"}
-            <span className="font-normal text-muted-foreground">
-              {" "}
-              · {relativeTime(latest.created_at)}
-            </span>
-          </p>
-          <p className="mt-1 whitespace-pre-wrap text-base">{latest.body}</p>
-        </div>
-      )}
-    </div>
-  );
+  if (days === 0) return "today";
+  if (days === 1) return "tomorrow";
+  return date.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
 }
