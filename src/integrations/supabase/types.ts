@@ -14,6 +14,109 @@ export type Database = {
   }
   public: {
     Tables: {
+      care_circles: {
+        Row: {
+          cared_for_name: string
+          cared_for_notes: string | null
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+        }
+        Insert: {
+          cared_for_name?: string
+          cared_for_notes?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+        }
+        Update: {
+          cared_for_name?: string
+          cared_for_notes?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      circle_invites: {
+        Row: {
+          accepted_at: string | null
+          circle_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["circle_role"]
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          circle_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          role?: Database["public"]["Enums"]["circle_role"]
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          circle_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: Database["public"]["Enums"]["circle_role"]
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_invites_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "care_circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circle_members: {
+        Row: {
+          circle_id: string
+          id: string
+          joined_at: string
+          role: Database["public"]["Enums"]["circle_role"]
+          user_id: string
+        }
+        Insert: {
+          circle_id: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["circle_role"]
+          user_id: string
+        }
+        Update: {
+          circle_id?: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["circle_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_members_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "care_circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -40,10 +143,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      accept_circle_invite: { Args: { _token: string }; Returns: string }
+      can_edit_circle: { Args: { _circle_id: string }; Returns: boolean }
+      circle_invite_preview: {
+        Args: { _token: string }
+        Returns: {
+          cared_for_name: string
+          circle_id: string
+          circle_name: string
+          invite_role: Database["public"]["Enums"]["circle_role"]
+          valid: boolean
+        }[]
+      }
+      circle_role: {
+        Args: { _circle_id: string }
+        Returns: Database["public"]["Enums"]["circle_role"]
+      }
+      is_circle_member: { Args: { _circle_id: string }; Returns: boolean }
+      is_circle_organiser: { Args: { _circle_id: string }; Returns: boolean }
+      shares_circle_with: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      circle_role: "organiser" | "member" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -170,6 +291,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      circle_role: ["organiser", "member", "viewer"],
+    },
   },
 } as const
