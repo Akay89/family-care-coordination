@@ -2,6 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, CheckSquare, ListChecks, Users } from "lucide-react";
 
 import { useCircles } from "@/hooks/use-circles";
+import {
+  useCircleMemberNames,
+  useUpcomingEvents,
+} from "@/hooks/use-circle-events";
+import { cn } from "@/lib/utils";
+import {
+  dayHeading,
+  eventTypeBadgeClass,
+  eventTypeLabels,
+  formatTimeRange,
+} from "@/lib/events";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: AppHome,
@@ -54,6 +65,7 @@ function AppHome() {
         </p>
       )}
 
+      <UpcomingEvents circleId={activeCircle?.id} />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shortcuts.map((item) => (
