@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, CheckSquare, ListChecks, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
+import { useCircleTasks } from "@/hooks/use-circle-tasks";
+import { dueLabel, isThisWeek } from "@/lib/tasks";
 import { useCircles } from "@/hooks/use-circles";
 import {
   useCircleMemberNames,
@@ -66,6 +70,8 @@ function AppHome() {
       )}
 
       <UpcomingEvents circleId={activeCircle?.id} />
+      <TaskCards circleId={activeCircle?.id} />
+
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shortcuts.map((item) => (
@@ -141,6 +147,77 @@ function UpcomingEvents({ circleId }: { circleId: string | undefined }) {
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+function TaskCards({ circleId }: { circleId: string | undefined }) {
+  const tasks = useCircleTasks(circleId);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+
+  if (!circleId || tasks.isLoading) return null;
+
+  const open = (tasks.data ?? []).filter((task) => task.status === "todo");
+  const unassigned = open.filter((task) => !task.assigned_to);
+  const mine = open.filter(
+    (task) =>
+      task.assigned_to === userId && task.due_date && isThisWeek(task.due_date),
+  );
+
+  return (
+    <div className="mt-6 grid max-w-4xl gap-4 sm:grid-cols-2">
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-xl font-semibold">
+            {unassigned.length === 0
+              ? "Everything has someone"
+              : `${unassigned.length} ${unassigned.length === 1 ? "task needs" : "tasks need"} someone`}
+          </h2>
+          <Link to="/app/tasks" className="text-base font-medium text-primary underline">
+            Tasks
+          </Link>
+        </div>
+        {unassigned.length > 0 && (
+          <ul className="mt-3 space-y-2">
+            {unassigned.slice(0, 4).map((task) => (
+              <li key={task.id} className="text-base">
+                {task.title}
+                {task.due_date && (
+                  <span className="text-muted-foreground">
+                    {" "}
+                    — {dueLabel(task.due_date)}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <h2 className="text-xl font-semibold">Your tasks this week</h2>
+        {mine.length === 0 ? (
+          <p className="mt-3 text-base text-muted-foreground">
+            Nothing due from you this week.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {mine.slice(0, 4).map((task) => (
+              <li key={task.id} className="text-base">
+                {task.title}
+                <span className="text-muted-foreground">
+                  {" "}
+                  — {dueLabel(task.due_date!)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
