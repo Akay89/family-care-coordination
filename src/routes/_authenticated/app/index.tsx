@@ -90,3 +90,57 @@ function AppHome() {
     </section>
   );
 }
+
+function UpcomingEvents({ circleId }: { circleId: string | undefined }) {
+  const events = useUpcomingEvents(circleId, 3);
+  const members = useCircleMemberNames(circleId);
+
+  if (!circleId || events.isLoading) return null;
+
+  const names = new Map(
+    (members.data ?? []).map((member) => [member.user_id, member.full_name]),
+  );
+  const rows = events.data ?? [];
+
+  return (
+    <div className="mt-8 max-w-2xl rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold">Coming up next</h2>
+        <Link to="/app/calendar" className="text-base font-medium text-primary underline">
+          See the calendar
+        </Link>
+      </div>
+
+      {rows.length === 0 ? (
+        <p className="mt-3 text-base text-muted-foreground">
+          Nothing planned yet.
+        </p>
+      ) : (
+        <ul className="mt-4 space-y-4">
+          {rows.map((event) => (
+            <li key={event.id} className="flex flex-wrap items-center gap-3">
+              <span
+                className={cn(
+                  "rounded-full px-3 py-1 text-sm font-medium",
+                  eventTypeBadgeClass[event.type],
+                )}
+              >
+                {eventTypeLabels[event.type]}
+              </span>
+              <span className="text-base font-medium">
+                {dayHeading(new Date(event.start_at))},{" "}
+                {formatTimeRange(event.start_at, event.end_at)}
+              </span>
+              <span className="text-base">{event.title}</span>
+              <span className="text-base text-muted-foreground">
+                {event.assigned_to
+                  ? (names.get(event.assigned_to) ?? "Family member")
+                  : "Unassigned"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
