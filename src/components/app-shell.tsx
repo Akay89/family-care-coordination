@@ -12,6 +12,7 @@ import {
   LogOut,
   MessageCircle,
   Plus,
+  ShieldCheck,
   User,
   Users,
 } from "lucide-react";
@@ -28,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCircles, roleLabels } from "@/hooks/use-circles";
+import { useIsAdmin } from "@/hooks/use-checklists";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -45,6 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { circles, activeCircle, selectCircle } = useCircles();
+  const isAdmin = useIsAdmin();
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -131,6 +134,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                   Profile
                 </Link>
               </DropdownMenuItem>
+              {isAdmin.data && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin" className="cursor-pointer text-base">
+                    <ShieldCheck className="size-4" aria-hidden="true" />
+                    Checklist admin
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="cursor-pointer text-base"
