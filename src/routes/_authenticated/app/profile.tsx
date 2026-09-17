@@ -111,7 +111,13 @@ function ProfilePage() {
     if (!data) return;
     const { error } = await supabase
       .from("notification_preferences")
-      .update({ [key]: value })
+      .update(
+        key === "invite_emails"
+          ? { invite_emails: value }
+          : key === "assignment_emails"
+            ? { assignment_emails: value }
+            : { daily_digest: value },
+      )
       .eq("user_id", data.id);
     if (error) {
       toast.error("Sorry, we couldn't change that setting.");
