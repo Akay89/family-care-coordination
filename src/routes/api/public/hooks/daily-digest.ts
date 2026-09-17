@@ -46,11 +46,14 @@ export const Route = createFileRoute("/api/public/hooks/daily-digest")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["LOVABLE_CRON_SECRET"];
+        const secrets = [
+          process.env["DIGEST_CRON_SECRET"],
+          process.env["LOVABLE_CRON_SECRET"],
+        ].filter(Boolean);
         const token = request.headers
           .get("authorization")
           ?.replace(/^Bearer /, "");
-        if (!secret || token !== secret) {
+        if (!secrets.length || !token || !secrets.includes(token)) {
           return new Response(JSON.stringify({ error: "Unauthorised" }), {
             status: 401,
             headers: { "content-type": "application/json" },
