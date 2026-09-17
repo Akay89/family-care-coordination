@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import { useCircleTasks } from "@/hooks/use-circle-tasks";
 import {
   useCircleUpdates,
@@ -160,6 +161,14 @@ function AppHome() {
         Here's what's happening in {activeCircle?.name ?? "your care circle"}.
       </p>
 
+      {events.isError || tasks.isError || updates.isError ? (
+        <LoadError
+          what="today's overview"
+          onRetry={() => void queryClient.invalidateQueries()}
+        />
+      ) : events.isLoading || tasks.isLoading ? (
+        <CardListSkeleton rows={4} />
+      ) : (
       <div className="mt-8 space-y-5">
         {/* Today */}
         <Card
@@ -402,6 +411,7 @@ function AppHome() {
           )}
         </Card>
       </div>
+      )}
     </section>
   );
 }

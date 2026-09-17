@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import { Label } from "@/components/ui/label";
 
 /**
@@ -53,10 +54,21 @@ export function ConsentGate({ children }: { children: ReactNode }) {
     await queryClient.invalidateQueries({ queryKey: ["consent"] });
   }
 
+  if (consent.isError) {
+    return (
+      <div className="container-narrow py-16">
+        <LoadError
+          what="your account details"
+          onRetry={() => void consent.refetch()}
+        />
+      </div>
+    );
+  }
+
   if (consent.isLoading) {
     return (
-      <div className="container-narrow py-16 text-lg text-muted-foreground">
-        Loading…
+      <div className="container-narrow py-16">
+        <CardListSkeleton rows={2} className="space-y-3" />
       </div>
     );
   }
@@ -107,6 +119,7 @@ export function ConsentGate({ children }: { children: ReactNode }) {
         <div className="mt-8 flex items-start gap-3">
           <Checkbox
             id="consent"
+            className="mt-0.5 size-6 shrink-0"
             checked={agreed}
             onCheckedChange={(value) => setAgreed(value === true)}
           />

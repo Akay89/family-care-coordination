@@ -19,6 +19,7 @@ import {
   type ReactionEmoji,
 } from "@/lib/updates";
 import { Button } from "@/components/ui/button";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
@@ -182,8 +183,10 @@ function UpdatesPage() {
         </p>
       )}
 
-      {updates.isLoading ? (
-        <p className="mt-8 text-base text-muted-foreground">Loading updates…</p>
+      {updates.isError ? (
+        <LoadError what="the updates" onRetry={() => void updates.refetch()} />
+      ) : updates.isLoading ? (
+        <CardListSkeleton rows={3} className="mt-8 max-w-2xl space-y-3" />
       ) : rows.length === 0 ? (
         <div className="mt-8 max-w-2xl rounded-2xl border border-dashed border-border p-8 text-center">
           <MessageCircle

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { CardListSkeleton } from "@/components/data-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -143,7 +144,11 @@ function AdminPage() {
   }
 
   if (admin.isLoading) {
-    return <p className="container-page py-10 text-muted-foreground">Loading…</p>;
+    return (
+      <div className="container-page py-10">
+        <CardListSkeleton rows={3} className="space-y-3" />
+      </div>
+    );
   }
 
   if (!admin.data) {

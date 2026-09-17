@@ -12,6 +12,7 @@ import {
   type SoleOrganiserCircle,
 } from "@/lib/account.functions";
 import { Button } from "@/components/ui/button";
+import { LoadError, TextSkeleton } from "@/components/data-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -295,8 +296,14 @@ function ProfilePage() {
           files, personal notes or family messages in emails.
         </p>
 
-        {prefs.isLoading ? (
-          <p className="mt-6 text-base text-muted-foreground">Loading…</p>
+        {prefs.isError ? (
+          <LoadError
+            what="your email settings"
+            onRetry={() => void prefs.refetch()}
+            className="mt-6"
+          />
+        ) : prefs.isLoading ? (
+          <TextSkeleton lines={3} className="mt-6" />
         ) : (
           <ul className="mt-6 space-y-5">
             {prefCopy.map((item) => (
@@ -310,6 +317,7 @@ function ProfilePage() {
                   </p>
                 </div>
                 <Switch
+                  className="h-7 w-12 shrink-0 [&>span]:size-6 [&>span]:data-[state=checked]:translate-x-5"
                   id={item.key}
                   checked={Boolean(prefs.data?.[item.key])}
                   onCheckedChange={(value) => void togglePref(item.key, value)}

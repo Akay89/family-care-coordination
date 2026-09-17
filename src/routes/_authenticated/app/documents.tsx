@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -69,7 +70,12 @@ export const Route = createFileRoute("/_authenticated/app/documents")({
 function DocumentsPage() {
   const { activeCircle, canEdit, isOrganiser } = useCircles();
   const circleId = activeCircle?.id;
-  const { data: documents, isLoading, refetch } = useCircleDocuments(circleId);
+  const {
+    data: documents,
+    isLoading,
+    isError,
+    refetch,
+  } = useCircleDocuments(circleId);
   const { data: names } = useCircleMemberNames(circleId);
 
   const [userId, setUserId] = useState<string | null>(null);
@@ -295,8 +301,14 @@ function DocumentsPage() {
         />
       </div>
 
-      {isLoading ? (
-        <p className="text-muted-foreground">Loading documents…</p>
+      {isError ? (
+        <LoadError
+          what="the documents"
+          onRetry={() => void refetch()}
+          className="rounded-2xl border border-border p-4"
+        />
+      ) : isLoading ? (
+        <CardListSkeleton rows={3} className="space-y-3" />
       ) : grouped.length === 0 ? (
         <p className="text-muted-foreground">
           {search.trim() === ""

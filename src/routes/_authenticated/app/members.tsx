@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { sendInviteEmail } from "@/lib/notifications.functions";
 import { logActivity } from "@/lib/activity";
 import { Button } from "@/components/ui/button";
+import { CardListSkeleton, LoadError } from "@/components/data-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -274,8 +275,14 @@ function MembersPage() {
           In this circle
         </h2>
 
-        {members.isLoading ? (
-          <p className="mt-4 text-base text-muted-foreground">Loading…</p>
+        {members.isError ? (
+          <LoadError
+            what="the people in this circle"
+            onRetry={() => void members.refetch()}
+            className="mt-4 rounded-2xl border border-border p-4"
+          />
+        ) : members.isLoading ? (
+          <CardListSkeleton rows={3} className="mt-4 space-y-3" />
         ) : (
           <ul className="mt-4 divide-y divide-border">
             {(members.data ?? []).map((member) => (
@@ -383,8 +390,14 @@ function MembersPage() {
 
           <div className="mt-6 rounded-2xl border border-border bg-card p-6">
             <h2 className="text-xl font-semibold">Invites waiting</h2>
-            {invites.isLoading ? (
-              <p className="mt-4 text-base text-muted-foreground">Loading…</p>
+            {invites.isError ? (
+              <LoadError
+                what="the invites"
+                onRetry={() => void invites.refetch()}
+                className="mt-4 rounded-2xl border border-border p-4"
+              />
+            ) : invites.isLoading ? (
+              <CardListSkeleton rows={2} className="mt-4 space-y-3" />
             ) : (invites.data ?? []).length === 0 ? (
               <p className="mt-4 text-base text-muted-foreground">
                 No invites waiting at the moment.
