@@ -37,19 +37,19 @@ function WelcomePage() {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
       if (!user) throw new Error("Please sign in again.");
-      const { data: circle, error } = await supabase
-        .from("care_circles")
-        .insert({
-          name: name.trim(),
-          cared_for_name: caredForName.trim(),
-          cared_for_notes: notes.trim() === "" ? null : notes.trim(),
-          created_by: user.id,
-        })
-        .select("id")
-        .single();
+      // The id is generated here because the new row only becomes readable
+      // once the creator's organiser membership exists.
+      const id = crypto.randomUUID();
+      const { error } = await supabase.from("care_circles").insert({
+        id,
+        name: name.trim(),
+        cared_for_name: caredForName.trim(),
+        cared_for_notes: notes.trim() === "" ? null : notes.trim(),
+        created_by: user.id,
+      });
       if (error) throw error;
       await refresh();
-      selectCircle(circle.id);
+      selectCircle(id);
       toast.success("Your care circle is ready.");
       navigate({ to: "/app/members" });
     } catch (error) {
