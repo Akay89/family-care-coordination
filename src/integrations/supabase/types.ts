@@ -41,6 +41,163 @@ export type Database = {
         }
         Relationships: []
       }
+      checklist_template_items: {
+        Row: {
+          created_at: string
+          help_text: string | null
+          id: string
+          link_url: string | null
+          position: number
+          template_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          help_text?: string | null
+          id?: string
+          link_url?: string | null
+          position?: number
+          template_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          help_text?: string | null
+          id?: string
+          link_url?: string | null
+          position?: number
+          template_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          title: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          title?: string
+        }
+        Relationships: []
+      }
+      circle_checklist_items: {
+        Row: {
+          circle_checklist_id: string
+          created_at: string
+          done_at: string | null
+          done_by: string | null
+          help_text: string | null
+          id: string
+          is_done: boolean
+          link_url: string | null
+          notes: string | null
+          position: number
+          title: string
+        }
+        Insert: {
+          circle_checklist_id: string
+          created_at?: string
+          done_at?: string | null
+          done_by?: string | null
+          help_text?: string | null
+          id?: string
+          is_done?: boolean
+          link_url?: string | null
+          notes?: string | null
+          position?: number
+          title: string
+        }
+        Update: {
+          circle_checklist_id?: string
+          created_at?: string
+          done_at?: string | null
+          done_by?: string | null
+          help_text?: string | null
+          id?: string
+          is_done?: boolean
+          link_url?: string | null
+          notes?: string | null
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_checklist_items_circle_checklist_id_fkey"
+            columns: ["circle_checklist_id"]
+            isOneToOne: false
+            referencedRelation: "circle_checklists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      circle_checklists: {
+        Row: {
+          circle_id: string
+          created_at: string
+          id: string
+          started_by: string
+          template_id: string | null
+          title: string
+        }
+        Insert: {
+          circle_id: string
+          created_at?: string
+          id?: string
+          started_by: string
+          template_id?: string | null
+          title?: string
+        }
+        Update: {
+          circle_id?: string
+          created_at?: string
+          id?: string
+          started_by?: string
+          template_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_checklists_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "care_circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "circle_checklists_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       circle_invites: {
         Row: {
           accepted_at: string | null
@@ -216,18 +373,21 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          is_admin: boolean
           phone: string | null
         }
         Insert: {
           created_at?: string
           full_name?: string
           id: string
+          is_admin?: boolean
           phone?: string | null
         }
         Update: {
           created_at?: string
           full_name?: string
           id?: string
+          is_admin?: boolean
           phone?: string | null
         }
         Relationships: []
@@ -292,6 +452,7 @@ export type Database = {
     Functions: {
       accept_circle_invite: { Args: { _token: string }; Returns: string }
       can_edit_circle: { Args: { _circle_id: string }; Returns: boolean }
+      checklist_circle_id: { Args: { _checklist_id: string }; Returns: string }
       circle_invite_preview: {
         Args: { _token: string }
         Returns: {
@@ -306,6 +467,7 @@ export type Database = {
         Args: { _circle_id: string }
         Returns: Database["public"]["Enums"]["circle_role"]
       }
+      is_admin: { Args: never; Returns: boolean }
       is_circle_member: { Args: { _circle_id: string }; Returns: boolean }
       is_circle_organiser: { Args: { _circle_id: string }; Returns: boolean }
       shares_circle_with: { Args: { _user_id: string }; Returns: boolean }

@@ -36,6 +36,13 @@
       "when": 1789657793080,
       "tag": "0004_create_documents",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789658939873,
+      "tag": "0005_create_checklists",
+      "breakpoints": true
     }
   ]
 }
