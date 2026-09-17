@@ -8,7 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+function safePath(value: unknown) {
+  return typeof value === "string" && /^\/[^/\\]/.test(value) ? value : undefined;
+}
+
 export const Route = createFileRoute("/login")({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { redirect?: string } => {
+    const target = safePath(search['redirect']);
+    return target ? { redirect: target } : {};
+  },
   head: () => ({
     meta: [
       { title: "Sign in to CareCircle" },
@@ -33,6 +43,8 @@ type Mode = "signin" | "signup" | "magic";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
+  const destination = redirect ?? "/app";
   const [mode, setMode] = useState<Mode>("signin");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -40,15 +52,18 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
 
+  const goToDestination = () =>
+    navigate({ href: destination, replace: true });
+
   useEffect(() => {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
-      if (active && data.session) navigate({ to: "/app", replace: true });
+      if (active && data.session) navigate({ href: destination, replace: true });
     });
     return () => {
       active = false;
     };
-  }, [navigate]);
+  }, [navigate, destination]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -60,7 +75,7 @@ function LoginPage() {
           password,
         });
         if (error) throw error;
-        navigate({ to: "/app", replace: true });
+        goToDestination();
         return;
       }
 
@@ -70,12 +85,12 @@ function LoginPage() {
           password,
           options: {
             data: { full_name: fullName },
-            emailRedirectTo: `${window.location.origin}/app`,
+            emailRedirectTo: `${window.location.origin}${destination}`,
           },
         });
         if (error) throw error;
         if (data.session) {
-          navigate({ to: "/app", replace: true });
+          goToDestination();
           return;
         }
         setSentTo(email);
@@ -85,7 +100,9 @@ function LoginPage() {
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/app` },
+        options: {
+          emailRedirectTo: `${window.location.origin}${destination}`,
+        },
       });
       if (error) throw error;
       setSentTo(email);

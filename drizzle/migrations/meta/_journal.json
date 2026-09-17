@@ -8,6 +8,13 @@
       "when": 1789639602148,
       "tag": "0000_create_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789640652039,
+      "tag": "0001_create_care_circles",
+      "breakpoints": true
     }
   ]
 }
