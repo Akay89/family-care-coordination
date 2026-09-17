@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileText, Image as ImageIcon, Lock, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -72,8 +72,10 @@ function DocumentsPage() {
   const { data: names } = useCircleMemberNames(circleId);
 
   const [userId, setUserId] = useState<string | null>(null);
-  useMemo(() => {
-    void supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  useEffect(() => {
+    void supabase.auth
+      .getUser()
+      .then(({ data }) => setUserId(data.user?.id ?? null));
   }, []);
 
   const [file, setFile] = useState<File | null>(null);
