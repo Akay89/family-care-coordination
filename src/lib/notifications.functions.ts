@@ -166,7 +166,7 @@ export const sendTestReminderEmail = createServerFn({ method: "POST" })
     await supabaseAdmin.from("notification_log").insert({
       user_id: context.userId,
       item_type: "test",
-      item_id: null,
+      item_id: crypto.randomUUID(),
       reminder_kind: "test",
       scheduled_for: new Date().toISOString(),
       scheduled_date: new Date().toISOString().slice(0, 10),
