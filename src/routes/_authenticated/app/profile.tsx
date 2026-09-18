@@ -87,6 +87,20 @@ function hourLabel(hour: number) {
   return `${display}:00${suffix}`;
 }
 
+function kindLabel(kind: string) {
+  if (kind === "24h") return "Day-before reminder";
+  if (kind === "1h") return "Hour-before reminder";
+  if (kind === "due") return "Tasks due today";
+  if (kind === "digest") return "Daily summary";
+  return "Test email";
+}
+
+function statusLabel(status: string) {
+  if (status === "sent") return "Sent";
+  if (status === "failed") return "Not sent";
+  return "Skipped";
+}
+
 function ProfilePage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -94,8 +108,10 @@ function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [blocking, setBlocking] = useState<SoleOrganiserCircle[]>([]);
+
 
   async function handleExport() {
     setExporting(true);
