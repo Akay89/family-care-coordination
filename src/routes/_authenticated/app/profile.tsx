@@ -262,17 +262,11 @@ function ProfilePage() {
     }
   }
 
-  async function togglePref(key: PrefKey, value: boolean) {
+  async function savePref(key: PrefKey | HourKey, value: boolean | number) {
     if (!data) return;
     const { error } = await supabase
       .from("notification_preferences")
-      .update(
-        key === "invite_emails"
-          ? { invite_emails: value }
-          : key === "assignment_emails"
-            ? { assignment_emails: value }
-            : { daily_digest: value },
-      )
+      .update({ [key]: value } as never)
       .eq("user_id", data.id);
     if (error) {
       toast.error("Sorry, we couldn't change that setting.");
