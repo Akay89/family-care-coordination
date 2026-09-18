@@ -701,14 +701,23 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_circle_member: { Args: { _circle_id: string }; Returns: boolean }
       is_circle_organiser: { Args: { _circle_id: string }; Returns: boolean }
-      my_sole_organiser_circles: {
-        Args: never
-        Returns: {
-          circle_id: string
-          circle_name: string
-          other_members: number
-        }[]
-      }
+      my_sole_organiser_circles:
+        | {
+            Args: never
+            Returns: {
+              circle_id: string
+              circle_name: string
+              other_members: number
+            }[]
+          }
+        | {
+            Args: { _user_id: string }
+            Returns: {
+              circle_id: string
+              circle_name: string
+              other_members: number
+            }[]
+          }
       shares_circle_with: { Args: { _user_id: string }; Returns: boolean }
       update_circle_id: { Args: { _update_id: string }; Returns: string }
     }
