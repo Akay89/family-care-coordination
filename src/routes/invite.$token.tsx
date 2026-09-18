@@ -4,6 +4,7 @@ import { CalendarHeart } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activity";
+import { previewInvite } from "@/lib/invites.functions";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/invite/$token")({
