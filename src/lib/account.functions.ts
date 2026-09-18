@@ -15,10 +15,15 @@ export type SoleOrganiserCircle = {
 export const deleteMyAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
 
-    const { data: sole, error: soleError } = await supabase.rpc(
+    const { supabaseAdmin } = await import(
+      "@/integrations/supabase/client.server"
+    );
+
+    const { data: sole, error: soleError } = await supabaseAdmin.rpc(
       "my_sole_organiser_circles",
+      { _user_id: userId },
     );
     if (soleError) throw new Error(soleError.message);
 
@@ -29,9 +34,6 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
       return { deleted: false as const, blocking };
     }
 
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
 
     // Circles where this person is the only organiser and nobody else is left:
     // remove the circle and everything hanging off it.
