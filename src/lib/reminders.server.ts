@@ -115,7 +115,7 @@ export async function claimAndSend(log: LogRow, mail: MailParts) {
     to: mail.to,
     subject: mail.subject,
     bodyHtml: mail.bodyHtml,
-    footerHtml: mail.footerHtml,
+    footerHtml: mail.footerHtml ?? "",
     text: mail.text,
   });
 
