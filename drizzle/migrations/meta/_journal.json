@@ -78,6 +78,13 @@
       "when": 1789736722951,
       "tag": "0010_restrict_security_definer_execute_and_storage_update_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789744183028,
+      "tag": "0011_reminders_and_notification_log",
+      "breakpoints": true
     }
   ]
 }

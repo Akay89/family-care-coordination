@@ -409,12 +409,60 @@ export type Database = {
           },
         ]
       }
+      notification_log: {
+        Row: {
+          created_at: string
+          error_text: string | null
+          id: string
+          item_id: string | null
+          item_type: string
+          reminder_kind: string
+          scheduled_date: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_text?: string | null
+          id?: string
+          item_id?: string | null
+          item_type: string
+          reminder_kind: string
+          scheduled_date: string
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_text?: string | null
+          id?: string
+          item_id?: string | null
+          item_type?: string
+          reminder_kind?: string
+          scheduled_date?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           assignment_emails: boolean
           created_at: string
           daily_digest: boolean
+          digest_hour: number
+          event_reminder_1h: boolean
+          event_reminder_24h: boolean
           invite_emails: boolean
+          quiet_hours_end: number
+          quiet_hours_start: number
+          task_due_reminder: boolean
           unsubscribe_token: string
           user_id: string
         }
@@ -422,7 +470,13 @@ export type Database = {
           assignment_emails?: boolean
           created_at?: string
           daily_digest?: boolean
+          digest_hour?: number
+          event_reminder_1h?: boolean
+          event_reminder_24h?: boolean
           invite_emails?: boolean
+          quiet_hours_end?: number
+          quiet_hours_start?: number
+          task_due_reminder?: boolean
           unsubscribe_token?: string
           user_id: string
         }
@@ -430,7 +484,13 @@ export type Database = {
           assignment_emails?: boolean
           created_at?: string
           daily_digest?: boolean
+          digest_hour?: number
+          event_reminder_1h?: boolean
+          event_reminder_24h?: boolean
           invite_emails?: boolean
+          quiet_hours_end?: number
+          quiet_hours_start?: number
+          task_due_reminder?: boolean
           unsubscribe_token?: string
           user_id?: string
         }

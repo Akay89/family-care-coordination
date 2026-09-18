@@ -24,6 +24,8 @@ export async function sendEmail(options: {
   subject: string;
   bodyHtml: string;
   footerHtml?: string;
+  /** Optional plain-text alternative. */
+  text?: string;
 }) {
   const apiKey = process.env["RESEND_API_KEY"];
   if (!apiKey) {
@@ -42,6 +44,13 @@ export async function sendEmail(options: {
       to: [options.to],
       subject: options.subject,
       html: shell(options.bodyHtml, options.footerHtml ?? ""),
+      ...(options.text
+        ? {
+            text: `${options.text}
+
+CareCircle does not provide medical advice. In an emergency call 999.`,
+          }
+        : {}),
     }),
   });
 

@@ -32,7 +32,15 @@ export const Route = createFileRoute("/_authenticated/app/profile")({
   component: ProfilePage,
 });
 
-type PrefKey = "invite_emails" | "assignment_emails" | "daily_digest";
+type PrefKey =
+  | "invite_emails"
+  | "assignment_emails"
+  | "daily_digest"
+  | "event_reminder_24h"
+  | "event_reminder_1h"
+  | "task_due_reminder";
+
+type HourKey = "digest_hour" | "quiet_hours_start" | "quiet_hours_end";
 
 const prefCopy: { key: PrefKey; title: string; blurb: string }[] = [
   {
@@ -46,11 +54,38 @@ const prefCopy: { key: PrefKey; title: string; blurb: string }[] = [
     blurb: "Email me when someone puts a task or a date down for me.",
   },
   {
+    key: "event_reminder_24h",
+    title: "Day-before reminders",
+    blurb: "Email me the day before something in the calendar.",
+  },
+  {
+    key: "event_reminder_1h",
+    title: "Hour-before reminders",
+    blurb: "Email me about an hour before something starts.",
+  },
+  {
+    key: "task_due_reminder",
+    title: "Tasks due today",
+    blurb: "A morning email about tasks due today.",
+  },
+  {
     key: "daily_digest",
     title: "Daily summary",
     blurb: "A short email each morning about the day ahead.",
   },
 ];
+
+const hourCopy: { key: HourKey; label: string }[] = [
+  { key: "digest_hour", label: "Send my daily summary at" },
+  { key: "quiet_hours_start", label: "Quiet hours start at" },
+  { key: "quiet_hours_end", label: "Quiet hours end at" },
+];
+
+function hourLabel(hour: number) {
+  const suffix = hour < 12 ? "am" : "pm";
+  const display = hour % 12 === 0 ? 12 : hour % 12;
+  return `${display}:00${suffix}`;
+}
 
 function ProfilePage() {
   const queryClient = useQueryClient();
@@ -179,9 +214,11 @@ function ProfilePage() {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
       if (!user) throw new Error("Not signed in");
+      const columns =
+        "invite_emails, assignment_emails, daily_digest, event_reminder_24h, event_reminder_1h, task_due_reminder, digest_hour, quiet_hours_start, quiet_hours_end";
       const { data: row, error } = await supabase
         .from("notification_preferences")
-        .select("invite_emails, assignment_emails, daily_digest")
+        .select(columns)
         .eq("user_id", user.id)
         .maybeSingle();
       if (error) throw error;
@@ -189,7 +226,7 @@ function ProfilePage() {
       const { data: created, error: insertError } = await supabase
         .from("notification_preferences")
         .insert({ user_id: user.id })
-        .select("invite_emails, assignment_emails, daily_digest")
+        .select(columns)
         .single();
       if (insertError) throw insertError;
       return created;
@@ -225,17 +262,11 @@ function ProfilePage() {
     }
   }
 
-  async function togglePref(key: PrefKey, value: boolean) {
+  async function savePref(key: PrefKey | HourKey, value: boolean | number) {
     if (!data) return;
     const { error } = await supabase
       .from("notification_preferences")
-      .update(
-        key === "invite_emails"
-          ? { invite_emails: value }
-          : key === "assignment_emails"
-            ? { assignment_emails: value }
-            : { daily_digest: value },
-      )
+      .update({ [key]: value } as never)
       .eq("user_id", data.id);
     if (error) {
       toast.error("Sorry, we couldn't change that setting.");
@@ -317,15 +348,39 @@ function ProfilePage() {
                   </p>
                 </div>
                 <Switch
-                  
                   id={item.key}
                   checked={Boolean(prefs.data?.[item.key])}
-                  onCheckedChange={(value) => void togglePref(item.key, value)}
+                  onCheckedChange={(value) => void savePref(item.key, value)}
                 />
+              </li>
+            ))}
+            {hourCopy.map((item) => (
+              <li key={item.key} className="flex items-center gap-4">
+                <Label htmlFor={item.key} className="flex-1 text-base">
+                  {item.label}
+                </Label>
+                <select
+                  id={item.key}
+                  className="h-11 rounded-md border border-input bg-background px-3 text-base"
+                  value={Number(prefs.data?.[item.key] ?? 7)}
+                  onChange={(event) =>
+                    void savePref(item.key, Number(event.target.value))
+                  }
+                >
+                  {Array.from({ length: 24 }, (_, hour) => (
+                    <option key={hour} value={hour}>
+                      {hourLabel(hour)}
+                    </option>
+                  ))}
+                </select>
               </li>
             ))}
           </ul>
         )}
+        <p className="mt-5 text-base text-muted-foreground">
+          During quiet hours we hold reminders back, except a reminder for
+          something starting within the hour.
+        </p>
       </div>
 
       <div className="mt-8 rounded-2xl border border-border bg-card p-6">
