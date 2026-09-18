@@ -28,7 +28,7 @@ import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppUpdatesRouteImport } from './routes/_authenticated/app/updates'
 import { Route as AuthenticatedAppWelcomeRouteImport } from './routes/_authenticated/app/welcome'
 import { Route as ApiPublicUnsubscribeRouteImport } from './routes/api/public/unsubscribe'
-import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
+import { Route as ApiPublicHooksSendDailyDigestRouteImport } from './routes/api/public/hooks/send-daily-digest'
 import { Route as ApiPublicHooksSendRemindersRouteImport } from './routes/api/public/hooks/send-reminders'
 
 const IndexRoute = IndexRouteImport.update({
@@ -129,10 +129,10 @@ const ApiPublicUnsubscribeRoute = ApiPublicUnsubscribeRouteImport.update({
   path: '/api/public/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicHooksDailyDigestRoute =
-  ApiPublicHooksDailyDigestRouteImport.update({
-    id: '/api/public/hooks/daily-digest',
-    path: '/api/public/hooks/daily-digest',
+const ApiPublicHooksSendDailyDigestRoute =
+  ApiPublicHooksSendDailyDigestRouteImport.update({
+    id: '/api/public/hooks/send-daily-digest',
+    path: '/api/public/hooks/send-daily-digest',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksSendRemindersRoute =
@@ -161,7 +161,7 @@ export interface FileRoutesByFullPath {
   '/app/welcome': typeof AuthenticatedAppWelcomeRoute
   '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/app/': typeof AuthenticatedAppIndexRoute
-  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
+  '/api/public/hooks/send-daily-digest': typeof ApiPublicHooksSendDailyDigestRoute
   '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
 export interface FileRoutesByTo {
@@ -182,7 +182,7 @@ export interface FileRoutesByTo {
   '/app/welcome': typeof AuthenticatedAppWelcomeRoute
   '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/app': typeof AuthenticatedAppIndexRoute
-  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
+  '/api/public/hooks/send-daily-digest': typeof ApiPublicHooksSendDailyDigestRoute
   '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
 export interface FileRoutesById {
@@ -206,7 +206,7 @@ export interface FileRoutesById {
   '/_authenticated/app/welcome': typeof AuthenticatedAppWelcomeRoute
   '/api/public/unsubscribe': typeof ApiPublicUnsubscribeRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
-  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
+  '/api/public/hooks/send-daily-digest': typeof ApiPublicHooksSendDailyDigestRoute
   '/api/public/hooks/send-reminders': typeof ApiPublicHooksSendRemindersRoute
 }
 export interface FileRouteTypes {
@@ -230,7 +230,7 @@ export interface FileRouteTypes {
     | '/app/welcome'
     | '/api/public/unsubscribe'
     | '/app/'
-    | '/api/public/hooks/daily-digest'
+    | '/api/public/hooks/send-daily-digest'
     | '/api/public/hooks/send-reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -251,7 +251,7 @@ export interface FileRouteTypes {
     | '/app/welcome'
     | '/api/public/unsubscribe'
     | '/app'
-    | '/api/public/hooks/daily-digest'
+    | '/api/public/hooks/send-daily-digest'
     | '/api/public/hooks/send-reminders'
   id:
     | '__root__'
@@ -274,7 +274,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/welcome'
     | '/api/public/unsubscribe'
     | '/_authenticated/app/'
-    | '/api/public/hooks/daily-digest'
+    | '/api/public/hooks/send-daily-digest'
     | '/api/public/hooks/send-reminders'
   fileRoutesById: FileRoutesById
 }
@@ -286,7 +286,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   InviteTokenRoute: typeof InviteTokenRoute
   ApiPublicUnsubscribeRoute: typeof ApiPublicUnsubscribeRoute
-  ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRoute
+  ApiPublicHooksSendDailyDigestRoute: typeof ApiPublicHooksSendDailyDigestRoute
   ApiPublicHooksSendRemindersRoute: typeof ApiPublicHooksSendRemindersRoute
 }
 
@@ -425,11 +425,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/daily-digest': {
-      id: '/api/public/hooks/daily-digest'
-      path: '/api/public/hooks/daily-digest'
-      fullPath: '/api/public/hooks/daily-digest'
-      preLoaderRoute: typeof ApiPublicHooksDailyDigestRouteImport
+    '/api/public/hooks/send-daily-digest': {
+      id: '/api/public/hooks/send-daily-digest'
+      path: '/api/public/hooks/send-daily-digest'
+      fullPath: '/api/public/hooks/send-daily-digest'
+      preLoaderRoute: typeof ApiPublicHooksSendDailyDigestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/send-reminders': {
@@ -492,7 +492,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   InviteTokenRoute: InviteTokenRoute,
   ApiPublicUnsubscribeRoute: ApiPublicUnsubscribeRoute,
-  ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRoute,
+  ApiPublicHooksSendDailyDigestRoute: ApiPublicHooksSendDailyDigestRoute,
   ApiPublicHooksSendRemindersRoute: ApiPublicHooksSendRemindersRoute,
 }
 export const routeTree = rootRouteImport

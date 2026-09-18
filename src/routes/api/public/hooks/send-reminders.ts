@@ -149,7 +149,6 @@ export const Route = createFileRoute("/api/public/hooks/send-reminders")({
               const name = circleName.get(event.circle_id) ?? "your care circle";
               const startsAt = new Date(event.start_at);
               const time = londonTimeLabel(startsAt);
-              const when = batch.kind === "24h" ? "Tomorrow" : "In about an hour";
               const who = event.assigned_to
                 ? "you have"
                 : "there is still nobody down for";
@@ -184,7 +183,6 @@ ${links.textTail}`,
                 },
               );
               if (ok) sent += 1;
-              void when;
             }
           }
         }
