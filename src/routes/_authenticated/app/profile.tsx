@@ -378,10 +378,58 @@ function ProfilePage() {
           </ul>
         )}
         <p className="mt-5 text-base text-muted-foreground">
-          During quiet hours we hold reminders back, except a reminder for
-          something starting within the hour.
+          Urgent 1-hour reminders are still sent during quiet hours.
         </p>
+
+        <Button
+          variant="outline"
+          className="mt-5"
+          disabled={testing}
+          onClick={() => void handleTestEmail()}
+        >
+          <Mail className="size-4" aria-hidden="true" />
+          {testing ? "Sending…" : "Send me a test email"}
+        </Button>
+
+        <h3 className="mt-8 text-xl font-semibold">Recent notifications</h3>
+        {logs.isError ? (
+          <LoadError
+            what="your recent notifications"
+            onRetry={() => void logs.refetch()}
+            className="mt-4"
+          />
+        ) : logs.isLoading ? (
+          <TextSkeleton lines={3} className="mt-4" />
+        ) : (logs.data ?? []).length === 0 ? (
+          <p className="mt-3 text-base text-muted-foreground">
+            Nothing has been sent to you yet.
+          </p>
+        ) : (
+          <ul className="mt-4 divide-y divide-border">
+            {(logs.data ?? []).map((row) => (
+              <li
+                key={row.id}
+                className="flex flex-wrap items-baseline justify-between gap-2 py-3"
+              >
+                <span className="text-base">
+                  {new Date(row.created_at).toLocaleString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                  {" · "}
+                  {kindLabel(row.reminder_kind)}
+                </span>
+                <span className="text-base text-muted-foreground">
+                  {statusLabel(row.status)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+
 
       <div className="mt-8 rounded-2xl border border-border bg-card p-6">
         <h2 className="text-2xl font-semibold">Your information</h2>
