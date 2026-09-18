@@ -249,8 +249,43 @@ function ProfilePage() {
     },
   });
 
+  const logs = useQuery({
+    queryKey: ["notification-log"],
+    queryFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (!user) throw new Error("Not signed in");
+      const { data: rows, error } = await supabase
+        .from("notification_log")
+        .select("id, reminder_kind, status, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return rows ?? [];
+    },
+  });
+
+  async function handleTestEmail() {
+    setTesting(true);
+    try {
+      const result = await sendTestReminderEmail();
+      if (result.sent) {
+        toast.success("Test email sent — have a look in your inbox.");
+      } else {
+        toast.error("We couldn't send the test email just now.");
+      }
+      await logs.refetch();
+    } catch {
+      toast.error("We couldn't send the test email just now.");
+    } finally {
+      setTesting(false);
+    }
+  }
+
   useEffect(() => {
     if (data?.profile) {
+
       setFullName(data.profile.full_name ?? "");
       setPhone(data.profile.phone ?? "");
     }
