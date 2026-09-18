@@ -348,15 +348,39 @@ function ProfilePage() {
                   </p>
                 </div>
                 <Switch
-                  
                   id={item.key}
                   checked={Boolean(prefs.data?.[item.key])}
-                  onCheckedChange={(value) => void togglePref(item.key, value)}
+                  onCheckedChange={(value) => void savePref(item.key, value)}
                 />
+              </li>
+            ))}
+            {hourCopy.map((item) => (
+              <li key={item.key} className="flex items-center gap-4">
+                <Label htmlFor={item.key} className="flex-1 text-base">
+                  {item.label}
+                </Label>
+                <select
+                  id={item.key}
+                  className="h-11 rounded-md border border-input bg-background px-3 text-base"
+                  value={Number(prefs.data?.[item.key] ?? 7)}
+                  onChange={(event) =>
+                    void savePref(item.key, Number(event.target.value))
+                  }
+                >
+                  {Array.from({ length: 24 }, (_, hour) => (
+                    <option key={hour} value={hour}>
+                      {hourLabel(hour)}
+                    </option>
+                  ))}
+                </select>
               </li>
             ))}
           </ul>
         )}
+        <p className="mt-5 text-base text-muted-foreground">
+          During quiet hours we hold reminders back, except a reminder for
+          something starting within the hour.
+        </p>
       </div>
 
       <div className="mt-8 rounded-2xl border border-border bg-card p-6">
