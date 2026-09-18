@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, Download } from "lucide-react";
+import { AlertTriangle, Download, Mail } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import {
   deleteMyAccount,
   type SoleOrganiserCircle,
 } from "@/lib/account.functions";
+import { sendTestReminderEmail } from "@/lib/notifications.functions";
 import { Button } from "@/components/ui/button";
 import { LoadError, TextSkeleton } from "@/components/data-state";
 import { Input } from "@/components/ui/input";
