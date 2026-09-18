@@ -128,3 +128,52 @@ export const sendAssignmentEmail = createServerFn({ method: "POST" })
     });
     return result;
   });
+
+/** Sends the signed-in person one sample reminder, so they can check it arrives. */
+export const sendTestReminderEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { sendEmail } = await import("@/lib/email.server");
+    const { mailLinks } = await import("@/lib/reminders.server");
+    const { supabaseAdmin } = await import(
+      "@/integrations/supabase/client.server"
+    );
+
+    const { data: user } = await supabaseAdmin.auth.admin.getUserById(
+      context.userId,
+    );
+    const to = user?.user?.email;
+    if (!to) return { sent: false, reason: "no_email" };
+
+    const { data: prefs } = await supabaseAdmin
+      .from("notification_preferences")
+      .select("unsubscribe_token")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    const links = mailLinks(prefs?.unsubscribe_token ?? "", "/app");
+    const line =
+      "This is a sample reminder. A real one looks like this: “Tomorrow at 2:00pm you have 1 appointment in your care circle.”";
+
+    const result = await sendEmail({
+      to,
+      subject: "Your test reminder from CareCircle",
+      bodyHtml: `<p>Hello,</p><p>${line}</p>${links.buttonHtml}`,
+      footerHtml: links.footerHtml,
+      text: `Hello,\n\n${line}\n${links.textTail}`,
+    });
+
+    await supabaseAdmin.from("notification_log").insert({
+      user_id: context.userId,
+      item_type: "test",
+      item_id: crypto.randomUUID(),
+      reminder_kind: "test",
+      scheduled_for: new Date().toISOString(),
+      scheduled_date: new Date().toISOString().slice(0, 10),
+      status: result.sent ? "sent" : "failed",
+      sent_at: result.sent ? new Date().toISOString() : null,
+      error_text: result.sent ? null : (result.reason ?? "unknown"),
+    });
+
+    return result;
+  });

@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, Download } from "lucide-react";
+import { AlertTriangle, Download, Mail } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import {
   deleteMyAccount,
   type SoleOrganiserCircle,
 } from "@/lib/account.functions";
+import { sendTestReminderEmail } from "@/lib/notifications.functions";
 import { Button } from "@/components/ui/button";
 import { LoadError, TextSkeleton } from "@/components/data-state";
 import { Input } from "@/components/ui/input";
@@ -87,6 +88,20 @@ function hourLabel(hour: number) {
   return `${display}:00${suffix}`;
 }
 
+function kindLabel(kind: string) {
+  if (kind === "24h") return "Day-before reminder";
+  if (kind === "1h") return "Hour-before reminder";
+  if (kind === "due") return "Tasks due today";
+  if (kind === "digest") return "Daily summary";
+  return "Test email";
+}
+
+function statusLabel(status: string) {
+  if (status === "sent") return "Sent";
+  if (status === "failed") return "Not sent";
+  return "Skipped";
+}
+
 function ProfilePage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -94,8 +109,10 @@ function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [blocking, setBlocking] = useState<SoleOrganiserCircle[]>([]);
+
 
   async function handleExport() {
     setExporting(true);
@@ -233,8 +250,43 @@ function ProfilePage() {
     },
   });
 
+  const logs = useQuery({
+    queryKey: ["notification-log"],
+    queryFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (!user) throw new Error("Not signed in");
+      const { data: rows, error } = await supabase
+        .from("notification_log")
+        .select("id, reminder_kind, status, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return rows ?? [];
+    },
+  });
+
+  async function handleTestEmail() {
+    setTesting(true);
+    try {
+      const result = await sendTestReminderEmail();
+      if (result.sent) {
+        toast.success("Test email sent — have a look in your inbox.");
+      } else {
+        toast.error("We couldn't send the test email just now.");
+      }
+      await logs.refetch();
+    } catch {
+      toast.error("We couldn't send the test email just now.");
+    } finally {
+      setTesting(false);
+    }
+  }
+
   useEffect(() => {
     if (data?.profile) {
+
       setFullName(data.profile.full_name ?? "");
       setPhone(data.profile.phone ?? "");
     }
@@ -378,10 +430,58 @@ function ProfilePage() {
           </ul>
         )}
         <p className="mt-5 text-base text-muted-foreground">
-          During quiet hours we hold reminders back, except a reminder for
-          something starting within the hour.
+          Urgent 1-hour reminders are still sent during quiet hours.
         </p>
+
+        <Button
+          variant="outline"
+          className="mt-5"
+          disabled={testing}
+          onClick={() => void handleTestEmail()}
+        >
+          <Mail className="size-4" aria-hidden="true" />
+          {testing ? "Sending…" : "Send me a test email"}
+        </Button>
+
+        <h3 className="mt-8 text-xl font-semibold">Recent notifications</h3>
+        {logs.isError ? (
+          <LoadError
+            what="your recent notifications"
+            onRetry={() => void logs.refetch()}
+            className="mt-4"
+          />
+        ) : logs.isLoading ? (
+          <TextSkeleton lines={3} className="mt-4" />
+        ) : (logs.data ?? []).length === 0 ? (
+          <p className="mt-3 text-base text-muted-foreground">
+            Nothing has been sent to you yet.
+          </p>
+        ) : (
+          <ul className="mt-4 divide-y divide-border">
+            {(logs.data ?? []).map((row) => (
+              <li
+                key={row.id}
+                className="flex flex-wrap items-baseline justify-between gap-2 py-3"
+              >
+                <span className="text-base">
+                  {new Date(row.created_at).toLocaleString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                  {" · "}
+                  {kindLabel(row.reminder_kind)}
+                </span>
+                <span className="text-base text-muted-foreground">
+                  {statusLabel(row.status)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+
 
       <div className="mt-8 rounded-2xl border border-border bg-card p-6">
         <h2 className="text-2xl font-semibold">Your information</h2>
