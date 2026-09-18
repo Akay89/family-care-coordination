@@ -214,9 +214,11 @@ function ProfilePage() {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData.user;
       if (!user) throw new Error("Not signed in");
+      const columns =
+        "invite_emails, assignment_emails, daily_digest, event_reminder_24h, event_reminder_1h, task_due_reminder, digest_hour, quiet_hours_start, quiet_hours_end";
       const { data: row, error } = await supabase
         .from("notification_preferences")
-        .select("invite_emails, assignment_emails, daily_digest")
+        .select(columns)
         .eq("user_id", user.id)
         .maybeSingle();
       if (error) throw error;
@@ -224,7 +226,7 @@ function ProfilePage() {
       const { data: created, error: insertError } = await supabase
         .from("notification_preferences")
         .insert({ user_id: user.id })
-        .select("invite_emails, assignment_emails, daily_digest")
+        .select(columns)
         .single();
       if (insertError) throw insertError;
       return created;
