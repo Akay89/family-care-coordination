@@ -44,14 +44,10 @@ function InvitePage() {
     let active = true;
 
     async function run() {
-      const { data: preview, error: previewError } = await supabase.rpc(
-        "circle_invite_preview",
-        { _token: token },
-      );
+      const invite = await previewInvite({ data: { token } }).catch(() => null);
       if (!active) return;
 
-      const invite = preview?.[0];
-      if (previewError || !invite) {
+      if (!invite) {
         setState({
           status: "error",
           message: "We couldn't find that invite. Ask for a fresh link.",
