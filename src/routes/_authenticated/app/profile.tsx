@@ -32,7 +32,15 @@ export const Route = createFileRoute("/_authenticated/app/profile")({
   component: ProfilePage,
 });
 
-type PrefKey = "invite_emails" | "assignment_emails" | "daily_digest";
+type PrefKey =
+  | "invite_emails"
+  | "assignment_emails"
+  | "daily_digest"
+  | "event_reminder_24h"
+  | "event_reminder_1h"
+  | "task_due_reminder";
+
+type HourKey = "digest_hour" | "quiet_hours_start" | "quiet_hours_end";
 
 const prefCopy: { key: PrefKey; title: string; blurb: string }[] = [
   {
@@ -46,11 +54,38 @@ const prefCopy: { key: PrefKey; title: string; blurb: string }[] = [
     blurb: "Email me when someone puts a task or a date down for me.",
   },
   {
+    key: "event_reminder_24h",
+    title: "Day-before reminders",
+    blurb: "Email me the day before something in the calendar.",
+  },
+  {
+    key: "event_reminder_1h",
+    title: "Hour-before reminders",
+    blurb: "Email me about an hour before something starts.",
+  },
+  {
+    key: "task_due_reminder",
+    title: "Tasks due today",
+    blurb: "A morning email about tasks due today.",
+  },
+  {
     key: "daily_digest",
     title: "Daily summary",
     blurb: "A short email each morning about the day ahead.",
   },
 ];
+
+const hourCopy: { key: HourKey; label: string }[] = [
+  { key: "digest_hour", label: "Send my daily summary at" },
+  { key: "quiet_hours_start", label: "Quiet hours start at" },
+  { key: "quiet_hours_end", label: "Quiet hours end at" },
+];
+
+function hourLabel(hour: number) {
+  const suffix = hour < 12 ? "am" : "pm";
+  const display = hour % 12 === 0 ? 12 : hour % 12;
+  return `${display}:00${suffix}`;
+}
 
 function ProfilePage() {
   const queryClient = useQueryClient();
