@@ -129,6 +129,7 @@ function InvitePage() {
                 circle straight away.
               </p>
               <Button
+                data-testid="accept-invite"
                 className="mt-6 w-full"
                 onClick={() =>
                   navigate({
@@ -160,7 +161,7 @@ function InvitePage() {
           )}
 
           {state.status === "error" && (
-            <>
+            <div data-testid="invite-invalid">
               <h1 className="text-2xl font-semibold sm:text-3xl">
                 That invite didn&apos;t work
               </h1>
@@ -174,7 +175,7 @@ function InvitePage() {
               >
                 Back to the home page
               </Button>
-            </>
+            </div>
           )}
         </div>
       </main>

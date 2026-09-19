@@ -51,6 +51,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const goToDestination = () =>
     navigate({ href: destination, replace: true });
@@ -67,6 +68,7 @@ function LoginPage() {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    setErrorMessage(null);
     setBusy(true);
     try {
       if (mode === "signin") {
@@ -108,9 +110,10 @@ function LoginPage() {
       setSentTo(email);
       toast.success("We've emailed you a sign-in link.");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Something went wrong.",
-      );
+      const message =
+        error instanceof Error ? error.message : "Something went wrong.";
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setBusy(false);
     }
@@ -174,6 +177,7 @@ function LoginPage() {
                     <Label htmlFor="fullName">Full name</Label>
                     <Input
                       id="fullName"
+                      data-testid="signup-name"
                       value={fullName}
                       autoComplete="name"
                       required
@@ -186,6 +190,7 @@ function LoginPage() {
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
+                     data-testid={mode === "signup" ? "signup-email" : "login-email"}
                     type="email"
                     value={email}
                     autoComplete="email"
@@ -199,6 +204,9 @@ function LoginPage() {
                     <Label htmlFor="password">Password</Label>
                     <Input
                       id="password"
+                      data-testid={
+                        mode === "signup" ? "signup-password" : "login-password"
+                      }
                       type="password"
                       value={password}
                       minLength={8}
@@ -211,7 +219,22 @@ function LoginPage() {
                   </div>
                 )}
 
-                <Button type="submit" className="w-full" disabled={busy}>
+                {errorMessage && (
+                  <p
+                    data-testid="login-error"
+                    role="alert"
+                    className="text-sm text-destructive"
+                  >
+                    {errorMessage}
+                  </p>
+                )}
+
+                <Button
+                  type="submit"
+                  data-testid={mode === "signup" ? "signup-submit" : "login-submit"}
+                  className="w-full"
+                  disabled={busy}
+                >
                   {busy
                     ? "Please wait…"
                     : mode === "signup"

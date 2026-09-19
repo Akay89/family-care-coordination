@@ -175,9 +175,11 @@ function TasksPage() {
     return (
       <li
         key={task.id}
+        data-testid="task-row"
         className="flex flex-wrap items-start gap-3 rounded-2xl border border-border bg-card p-4"
       >
         <Checkbox
+          data-testid="task-checkbox"
           checked={task.status === "done"}
           disabled={!canEdit}
           className="mt-1 size-6"
@@ -224,7 +226,7 @@ function TasksPage() {
         {canEdit && (
           <div className="flex flex-wrap items-center gap-2">
             {task.status === "todo" && !task.assigned_to && (
-              <Button size="sm" onClick={() => claim(task)}>
+              <Button data-testid="task-claim" size="sm" onClick={() => claim(task)}>
                 Claim
               </Button>
             )}
@@ -253,7 +255,7 @@ function TasksPage() {
       </p>
 
       {canEdit && (
-        <form onSubmit={handleQuickAdd} className="mt-6 flex max-w-2xl gap-3">
+        <form data-testid="task-quick-add" onSubmit={handleQuickAdd} className="mt-6 flex max-w-2xl gap-3">
           <Input
             value={quickAdd}
             placeholder="Add a task and press enter"

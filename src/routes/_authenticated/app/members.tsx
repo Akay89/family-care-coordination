@@ -288,6 +288,7 @@ function MembersPage() {
             {(members.data ?? []).map((member) => (
               <li
                 key={member.id}
+                data-testid="member-row"
                 className="flex flex-wrap items-center justify-between gap-3 py-4"
               >
                 <div className="min-w-0">
@@ -319,6 +320,7 @@ function MembersPage() {
                       </SelectContent>
                     </Select>
                     <Button
+                      data-testid="remove-member"
                       variant="outline"
                       size="icon"
                       aria-label="Remove from circle"
@@ -352,6 +354,7 @@ function MembersPage() {
               <Label htmlFor="inviteEmail">Their email</Label>
               <Input
                 id="inviteEmail"
+                data-testid="invite-email"
                 type="email"
                 value={email}
                 required
@@ -364,7 +367,7 @@ function MembersPage() {
                 value={inviteRole}
                 onValueChange={(value) => setInviteRole(value as CircleRole)}
               >
-                <SelectTrigger id="inviteRole" className="w-full sm:w-56">
+                <SelectTrigger data-testid="invite-role" id="inviteRole" className="w-full sm:w-56">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -379,9 +382,11 @@ function MembersPage() {
                 {roleDescriptions[inviteRole]}
               </p>
             </div>
-            <Button type="submit" disabled={busy}>
+            <div data-testid="invite-button">
+            <Button data-testid="invite-submit" type="submit" disabled={busy}>
               {busy ? "Creating invite…" : "Create invite link"}
             </Button>
+            </div>
             <p className="text-sm text-muted-foreground">
               We&apos;ll copy a link for you to send them however you like. It
               works for 7 days.
@@ -420,6 +425,7 @@ function MembersPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
+                        data-testid="invite-link"
                         variant="outline"
                         onClick={() => void copyLink(invite.token)}
                       >

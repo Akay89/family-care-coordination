@@ -21,6 +21,7 @@ type CirclesContextValue = {
   circles: Circle[];
   isLoading: boolean;
   activeCircle: Circle | null;
+  hasInvalidSelection: boolean;
   selectCircle: (id: string) => void;
   refresh: () => Promise<void>;
   canEdit: boolean;
@@ -69,8 +70,17 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
 
   const circles = data ?? [];
 
+  const hasInvalidSelection =
+    !isLoading &&
+    selectedId !== null &&
+    !circles.some((circle) => circle.id === selectedId);
+
   const activeCircle =
-    circles.find((circle) => circle.id === selectedId) ?? circles[0] ?? null;
+    (hasInvalidSelection
+      ? null
+      : circles.find((circle) => circle.id === selectedId)) ??
+    (selectedId === null ? circles[0] : null) ??
+    null;
 
   useEffect(() => {
     if (activeCircle) {
@@ -83,6 +93,7 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
       circles,
       isLoading,
       activeCircle,
+      hasInvalidSelection,
       selectCircle: (id: string) => {
         setSelectedId(id);
         window.localStorage.setItem(STORAGE_KEY, id);
@@ -95,7 +106,7 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
       isOrganiser: activeCircle?.role === "organiser",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, isLoading, activeCircle?.id, activeCircle?.role],
+    [data, isLoading, activeCircle?.id, activeCircle?.role, hasInvalidSelection],
   );
 
   return (

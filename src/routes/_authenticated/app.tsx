@@ -20,22 +20,42 @@ export const Route = createFileRoute("/_authenticated/app")({
 });
 
 function AppLayout() {
-  const { circles, isLoading } = useCircles();
+  const { circles, isLoading, activeCircle, hasInvalidSelection } = useCircles();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   useIdleLogout();
 
   useEffect(() => {
     if (isLoading) return;
+    if (hasInvalidSelection) return;
     if (circles.length === 0 && pathname !== "/app/welcome") {
       navigate({ to: "/app/welcome", replace: true });
     }
-  }, [circles.length, isLoading, pathname, navigate]);
+  }, [circles.length, hasInvalidSelection, isLoading, pathname, navigate]);
+
+  if (hasInvalidSelection) {
+    return (
+      <AppShell>
+        <section data-testid="not-authorised" className="max-w-2xl">
+          <h1 className="text-3xl font-semibold sm:text-4xl">Not authorised</h1>
+          <p className="mt-3 text-lg text-muted-foreground">
+            You no longer have access to this care circle.
+          </p>
+        </section>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
       <ConsentGate>
-        <Outlet />
+        {activeCircle && pathname !== "/app/welcome" ? (
+          <div data-testid="circle-root" data-circle-id={activeCircle.id}>
+            <Outlet />
+          </div>
+        ) : (
+          <Outlet />
+        )}
       </ConsentGate>
     </AppShell>
   );

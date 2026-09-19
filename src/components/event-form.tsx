@@ -159,6 +159,7 @@ export function EventFormSheet({
         <Label htmlFor="eventTitle">What is it?</Label>
         <Input
           id="eventTitle"
+          data-testid="event-title"
           value={title}
           required
           placeholder="GP appointment"
@@ -187,6 +188,7 @@ export function EventFormSheet({
           <Label htmlFor="eventStart">Starts</Label>
           <Input
             id="eventStart"
+            data-testid="event-start"
             type="datetime-local"
             value={startAt}
             required
@@ -243,7 +245,7 @@ export function EventFormSheet({
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button type="submit" disabled={busy}>
+        <Button data-testid="event-submit" type="submit" disabled={busy}>
           {busy ? "Saving…" : event ? "Save changes" : "Add it"}
         </Button>
         <Button
