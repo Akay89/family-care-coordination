@@ -32,6 +32,7 @@ import {
 import { InstallPrompt } from "@/components/install-prompt";
 import { useCircles, roleLabels } from "@/hooks/use-circles";
 import { useIsAdmin } from "@/hooks/use-checklists";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -50,6 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { circles, activeCircle, selectCircle, isOrganiser } = useCircles();
   const isAdmin = useIsAdmin();
+  const isMobile = useIsMobile();
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -175,7 +177,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <li key={item.to}>
                 <Link
                   to={item.to}
-                  data-testid={item.testId}
+                  data-testid={!isMobile ? item.testId : undefined}
                   className={cn(
                     "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-colors",
                     isActive(item.to)
@@ -205,7 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <li key={item.to} className="min-w-[4.5rem] flex-1">
               <Link
                 to={item.to}
-                data-testid={item.testId}
+                data-testid={isMobile ? item.testId : undefined}
                 className={cn(
                   "flex min-h-14 flex-col items-center justify-center gap-1 px-1 py-2 text-xs font-medium",
                   isActive(item.to) ? "text-primary" : "text-muted-foreground",

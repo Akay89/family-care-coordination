@@ -20,7 +20,13 @@ export const Route = createFileRoute("/_authenticated/app")({
 });
 
 function AppLayout() {
-  const { circles, isLoading, activeCircle, hasInvalidSelection } = useCircles();
+  const {
+    circles,
+    isLoading,
+    isSelectionReady,
+    activeCircle,
+    hasInvalidSelection,
+  } = useCircles();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   useIdleLogout();
@@ -32,6 +38,10 @@ function AppLayout() {
       navigate({ to: "/app/welcome", replace: true });
     }
   }, [circles.length, hasInvalidSelection, isLoading, pathname, navigate]);
+
+  if (isLoading || !isSelectionReady) {
+    return <AppShell>{null}</AppShell>;
+  }
 
   if (hasInvalidSelection) {
     return (

@@ -255,8 +255,9 @@ function TasksPage() {
       </p>
 
       {canEdit && (
-        <form data-testid="task-quick-add" onSubmit={handleQuickAdd} className="mt-6 flex max-w-2xl gap-3">
+        <form onSubmit={handleQuickAdd} className="mt-6 flex max-w-2xl gap-3">
           <Input
+            data-testid="task-quick-add"
             value={quickAdd}
             placeholder="Add a task and press enter"
             aria-label="Add a task"

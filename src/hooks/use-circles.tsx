@@ -20,6 +20,7 @@ const STORAGE_KEY = "carecircle:last-circle";
 type CirclesContextValue = {
   circles: Circle[];
   isLoading: boolean;
+  isSelectionReady: boolean;
   activeCircle: Circle | null;
   hasInvalidSelection: boolean;
   selectCircle: (id: string) => void;
@@ -39,10 +40,12 @@ export function useCircles() {
 export function CirclesProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isSelectionReady, setIsSelectionReady] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored) setSelectedId(stored);
+    setIsSelectionReady(true);
   }, []);
 
   const { data, isLoading } = useQuery({
@@ -72,6 +75,7 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
 
   const hasInvalidSelection =
     !isLoading &&
+    isSelectionReady &&
     selectedId !== null &&
     !circles.some((circle) => circle.id === selectedId);
 
@@ -92,6 +96,7 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
     () => ({
       circles,
       isLoading,
+      isSelectionReady,
       activeCircle,
       hasInvalidSelection,
       selectCircle: (id: string) => {
@@ -106,7 +111,14 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
       isOrganiser: activeCircle?.role === "organiser",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, isLoading, activeCircle?.id, activeCircle?.role, hasInvalidSelection],
+    [
+      data,
+      isLoading,
+      isSelectionReady,
+      activeCircle?.id,
+      activeCircle?.role,
+      hasInvalidSelection,
+    ],
   );
 
   return (
