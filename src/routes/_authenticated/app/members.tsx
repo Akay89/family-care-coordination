@@ -383,9 +383,9 @@ function MembersPage() {
               </p>
             </div>
             <div data-testid="invite-button">
-            <Button data-testid="invite-submit" type="submit" disabled={busy}>
-              {busy ? "Creating invite…" : "Create invite link"}
-            </Button>
+              <Button data-testid="invite-submit" type="submit" disabled={busy}>
+                {busy ? "Creating invite…" : "Create invite link"}
+              </Button>
             </div>
             <p className="text-sm text-muted-foreground">
               We&apos;ll copy a link for you to send them however you like. It

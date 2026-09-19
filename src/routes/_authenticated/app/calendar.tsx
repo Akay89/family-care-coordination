@@ -237,7 +237,7 @@ function EmptyState({
   filter: "all" | "mine";
 }) {
   return (
-    <div data-testid="empty-state" className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
+    <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center">
       <span
         className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-teal-soft text-primary"
         aria-hidden="true"

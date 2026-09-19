@@ -82,7 +82,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button data-testid="circle-switcher" variant="outline" className="min-w-0 max-w-[15rem] gap-2">
-                    <span className="truncate">{activeCircle.name}</span>
+                    <span data-testid="circle-title" className="truncate">
+                      {activeCircle.name}
+                    </span>
                     <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
                   </Button>
                 </DropdownMenuTrigger>

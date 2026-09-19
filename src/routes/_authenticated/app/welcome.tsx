@@ -80,8 +80,11 @@ function WelcomePage() {
   }
 
   return (
-    <section className="max-w-2xl">
-      <h1 data-testid="circle-title" className="text-3xl font-semibold sm:text-4xl">
+    <section
+      data-testid={circles.length === 0 ? "empty-state" : undefined}
+      className="max-w-2xl"
+    >
+      <h1 className="text-3xl font-semibold sm:text-4xl">
         {circles.length === 0
           ? "Welcome to CareCircle"
           : "Start another care circle"}
