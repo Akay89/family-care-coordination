@@ -117,7 +117,7 @@ function CalendarPage() {
           </p>
         </div>
         {canEdit && (
-          <Button onClick={openNew}>
+          <Button data-testid="add-event-button" onClick={openNew}>
             <Plus className="size-5" aria-hidden="true" />
             Add something
           </Button>
@@ -280,7 +280,7 @@ function EventCard({
   onClaim: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div data-testid="event-row" className="rounded-2xl border border-border bg-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -310,7 +310,7 @@ function EventCard({
 
         <div className="flex flex-wrap gap-2">
           {canClaim && (
-            <Button variant="secondary" onClick={onClaim}>
+            <Button data-testid="event-claim" variant="secondary" onClick={onClaim}>
               I can do this
             </Button>
           )}

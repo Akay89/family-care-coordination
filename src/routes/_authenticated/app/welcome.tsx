@@ -80,7 +80,10 @@ function WelcomePage() {
   }
 
   return (
-    <section className="max-w-2xl">
+    <section
+      data-testid={circles.length === 0 ? "empty-state" : undefined}
+      className="max-w-2xl"
+    >
       <h1 className="text-3xl font-semibold sm:text-4xl">
         {circles.length === 0
           ? "Welcome to CareCircle"
@@ -93,6 +96,7 @@ function WelcomePage() {
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Button
+          data-testid="create-circle-button"
           variant={choice === "create" ? "default" : "outline"}
           onClick={() => setChoice("create")}
         >
@@ -117,6 +121,7 @@ function WelcomePage() {
             <Label htmlFor="circleName">Name of the circle</Label>
             <Input
               id="circleName"
+              data-testid="circle-name"
               value={name}
               placeholder="Looking after Mum"
               required
@@ -127,6 +132,7 @@ function WelcomePage() {
             <Label htmlFor="caredForName">Who are you caring for?</Label>
             <Input
               id="caredForName"
+              data-testid="cared-for-name"
               value={caredForName}
               placeholder="Margaret"
               required
@@ -149,7 +155,7 @@ function WelcomePage() {
               details.
             </p>
           </div>
-          <Button type="submit" disabled={busy}>
+          <Button data-testid="circle-submit" type="submit" disabled={busy}>
             {busy ? "Creating…" : "Create care circle"}
           </Button>
         </form>

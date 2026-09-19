@@ -32,16 +32,17 @@ import {
 import { InstallPrompt } from "@/components/install-prompt";
 import { useCircles, roleLabels } from "@/hooks/use-circles";
 import { useIsAdmin } from "@/hooks/use-checklists";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { to: "/app", label: "Home", icon: Home },
-  { to: "/app/calendar", label: "Calendar", icon: CalendarDays },
-  { to: "/app/tasks", label: "Tasks", icon: CheckSquare },
-  { to: "/app/documents", label: "Documents", icon: FileText },
-  { to: "/app/checklists", label: "Checklists", icon: ListChecks },
-  { to: "/app/updates", label: "Updates", icon: MessageCircle },
-  { to: "/app/members", label: "People", icon: Users },
+  { to: "/app", label: "Home", icon: Home, testId: "nav-home" },
+  { to: "/app/calendar", label: "Calendar", icon: CalendarDays, testId: "nav-calendar" },
+  { to: "/app/tasks", label: "Tasks", icon: CheckSquare, testId: "nav-tasks" },
+  { to: "/app/documents", label: "Documents", icon: FileText, testId: "nav-documents" },
+  { to: "/app/checklists", label: "Checklists", icon: ListChecks, testId: "nav-checklists" },
+  { to: "/app/updates", label: "Updates", icon: MessageCircle, testId: "nav-updates" },
+  { to: "/app/members", label: "People", icon: Users, testId: "nav-members" },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -50,6 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { circles, activeCircle, selectCircle, isOrganiser } = useCircles();
   const isAdmin = useIsAdmin();
+  const isMobile = useIsMobile();
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -62,7 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     to === "/app" ? pathname === "/app" : pathname.startsWith(to);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div data-testid="app-shell" className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
         <div className="container-page flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
@@ -81,12 +83,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             {activeCircle && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="min-w-0 max-w-[15rem] gap-2">
-                    <span className="truncate">{activeCircle.name}</span>
+                  <Button data-testid="circle-switcher" variant="outline" className="min-w-0 max-w-[15rem] gap-2">
+                    <span data-testid="circle-title" className="truncate">
+                      {activeCircle.name}
+                    </span>
                     <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-64">
+                <DropdownMenuContent data-testid="circle-switcher-list" align="start" className="w-64">
                   <DropdownMenuLabel>Your care circles</DropdownMenuLabel>
                   {circles.map((circle) => (
                     <DropdownMenuItem
@@ -124,7 +128,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button data-testid="user-menu" variant="outline" className="gap-2">
                 <User className="size-5" aria-hidden="true" />
                 <span>Account</span>
               </Button>
@@ -154,6 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem
+                data-testid="logout"
                 className="cursor-pointer text-base"
                 onSelect={() => void handleSignOut()}
               >
@@ -172,6 +177,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <li key={item.to}>
                 <Link
                   to={item.to}
+                  data-testid={!isMobile ? item.testId : undefined}
                   className={cn(
                     "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-colors",
                     isActive(item.to)
@@ -201,6 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <li key={item.to} className="min-w-[4.5rem] flex-1">
               <Link
                 to={item.to}
+                data-testid={isMobile ? item.testId : undefined}
                 className={cn(
                   "flex min-h-14 flex-col items-center justify-center gap-1 px-1 py-2 text-xs font-medium",
                   isActive(item.to) ? "text-primary" : "text-muted-foreground",

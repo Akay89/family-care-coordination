@@ -20,7 +20,9 @@ const STORAGE_KEY = "carecircle:last-circle";
 type CirclesContextValue = {
   circles: Circle[];
   isLoading: boolean;
+  isSelectionReady: boolean;
   activeCircle: Circle | null;
+  hasInvalidSelection: boolean;
   selectCircle: (id: string) => void;
   refresh: () => Promise<void>;
   canEdit: boolean;
@@ -38,10 +40,12 @@ export function useCircles() {
 export function CirclesProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isSelectionReady, setIsSelectionReady] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored) setSelectedId(stored);
+    setIsSelectionReady(true);
   }, []);
 
   const { data, isLoading } = useQuery({
@@ -69,8 +73,18 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
 
   const circles = data ?? [];
 
+  const hasInvalidSelection =
+    !isLoading &&
+    isSelectionReady &&
+    selectedId !== null &&
+    !circles.some((circle) => circle.id === selectedId);
+
   const activeCircle =
-    circles.find((circle) => circle.id === selectedId) ?? circles[0] ?? null;
+    (hasInvalidSelection
+      ? null
+      : circles.find((circle) => circle.id === selectedId)) ??
+    (selectedId === null ? circles[0] : null) ??
+    null;
 
   useEffect(() => {
     if (activeCircle) {
@@ -82,7 +96,9 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
     () => ({
       circles,
       isLoading,
+      isSelectionReady,
       activeCircle,
+      hasInvalidSelection,
       selectCircle: (id: string) => {
         setSelectedId(id);
         window.localStorage.setItem(STORAGE_KEY, id);
@@ -95,7 +111,14 @@ export function CirclesProvider({ children }: { children: ReactNode }) {
       isOrganiser: activeCircle?.role === "organiser",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, isLoading, activeCircle?.id, activeCircle?.role],
+    [
+      data,
+      isLoading,
+      isSelectionReady,
+      activeCircle?.id,
+      activeCircle?.role,
+      hasInvalidSelection,
+    ],
   );
 
   return (

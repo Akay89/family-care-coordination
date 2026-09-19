@@ -239,6 +239,7 @@ function DocumentsPage() {
                 <Label htmlFor="docFile">Choose a PDF or photo (up to 10MB)</Label>
                 <Input
                   id="docFile"
+                  data-testid="document-upload"
                   type="file"
                   accept="application/pdf,image/*"
                   required
@@ -326,6 +327,7 @@ function DocumentsPage() {
                 {group.items.map((doc) => (
                   <li
                     key={doc.id}
+                    data-testid="document-row"
                     className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex min-w-0 gap-3">
@@ -358,6 +360,7 @@ function DocumentsPage() {
                     </div>
                     <div className="flex shrink-0 gap-2">
                       <Button
+                        data-testid="document-link"
                         variant="outline"
                         onClick={() => void handleOpen(doc)}
                       >
@@ -365,6 +368,7 @@ function DocumentsPage() {
                       </Button>
                       {canDelete(doc) ? (
                         <Button
+                          data-testid="document-delete"
                           variant="ghost"
                           aria-label={`Remove ${doc.file_name}`}
                           onClick={() => setPendingDelete(doc)}
@@ -397,7 +401,7 @@ function DocumentsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Keep it</AlertDialogCancel>
-            <AlertDialogAction onClick={() => void handleDelete()}>
+            <AlertDialogAction data-testid="confirm-remove" onClick={() => void handleDelete()}>
               Remove file
             </AlertDialogAction>
           </AlertDialogFooter>
